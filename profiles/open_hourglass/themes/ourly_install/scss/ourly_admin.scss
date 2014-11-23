@@ -1,0 +1,213 @@
+/* Import Mixins and Variables */
+@import "_base.scss";
+
+/* CG Credits in footer */
+#credit {
+  float: right; /* LTR */
+  padding: 20px 0 40px;
+}
+body.in-maintenance #credit {
+  color: #fff;
+  margin: 0 auto;
+  width: 960px;
+}
+#credit .message {
+  clear: right; /* LTR */
+  float: right; /* LTR */
+  margin-bottom: 20px;
+  width: 180px;
+  color: #333;
+}
+
+/* Installation/Maintenance Page */
+body.in-maintenance {
+  background: #e9e9e9 url(../images/tiny_grid.png) repeat 0 0;
+
+  .body-wrapper {
+    .page-outer {
+      padding: 40px 0;
+    }
+  }
+
+  #branding {
+    @include round-corners(5px,5px,0,0);
+    box-shadow: none;
+    background: #292929;
+    border-color: #292929;
+    border-bottom: 1px solid #000;
+    margin: 0;
+    padding: 30px 40px;
+    width: 960px;
+
+    h1.page-title {
+      color: #CCC;
+      font-size: 32px;
+      line-height: 1em;
+      padding: 10px 0;
+      text-align: center;
+    }
+  }
+
+  #page {
+    @include box-shadow(0,5px,5px,rgba(0,0,0,.28));
+    @include round-corners(5px,5px,5px,5px);
+    background: transparent;
+    background: #ffffff;
+    padding: 0;
+    width: 960px;
+    overflow: hidden;
+  }
+
+  .page-wrapper {
+    padding: 40px;
+    width: 960px;
+  }
+
+  .logo-wrapper {
+    float: left; /*LTR */
+  }
+
+  #logo {
+    margin: 0;
+    max-width: 100%;
+  }
+
+  #sidebar-first {
+    width: 270px;
+  }
+
+  fieldset .fieldset-wrapper,
+  fieldset.collapsible  {
+    border: 1px solid #ccc;
+    padding: 15px;
+
+    input.form-text {
+      width: 100%;
+    }
+  }
+
+  ol.task-list {
+    background: transparent url("../images/wizard-bg2.png") repeat-y 0 0;
+
+    li {
+      background: transparent url("../images/tasks-inactive.png") no-repeat 5px 4px;
+      color: #9a9a9a;
+      font: normal 400 16px/18px "Open Sans", Arial, sans-serif;
+      height: 30px;
+      padding: 6px 0 0 40px; /* LTR */
+      margin: 0 0 22px 0; /* LTR */
+    }
+
+    li.active {
+      background: transparent url("../images/tasks-active.png") no-repeat 5px 4px;
+      color: #2e87cd;
+    }
+
+    li.done {
+      background: transparent url("../images/tasks-complete.png") no-repeat 5px 4px;
+      color: #cc7a00;
+    }
+  }
+
+  .form-item-install-demo-store {
+
+    .form-radios {
+      float: left; /* LTR */
+    }
+    .description {
+      background: transparent url("../images/small-pointer.png") no-repeat 0 3px;
+      margin-left: 80px; /* LTR */
+      padding: 3px 5px 5px 23px; /* LTR */
+    }
+  }
+
+  div.form-type-password {
+    width: 500px;
+  }
+
+  .password-strength {
+    width: 15em;
+  }
+
+  .form-item-extras label[for=edit-extras] {
+    clear: both;
+  }
+
+  /* Welcome Page Styles */
+  #edit-submit.form-disabled {
+    opacity: .5;
+    cursor: auto;
+  }
+  #install-welcome > div > p {
+    margin-top: 0;
+  }
+  #eula-installation-welcome {
+    background: #f4f4f4;
+    border: 1px solid #edebeb;
+    padding: 0 20px 10px;
+    font-size: .9em;
+    line-height: 1.5em;
+
+    ul {
+      margin-bottom: 20px;
+      li {
+        margin-bottom: 10px;
+      }
+    }
+    .form-item-eula-accept label.option {
+      line-height: 2em;
+    }
+  }
+  #progress {
+    margin-bottom: 50px;
+  }
+}
+
+.page-admin-getting-started .advanced-help-topic {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.page-admin-getting-started .advanced-help-topic a {
+  color: #36A2F6;
+}
+
+/* Inline Help Adjustment */
+.page-admin-commerce-products #commerce-kickstart-inline-help-button {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  padding-top: 26px;
+  #edit-commerce-kickstart-inline-help-button {
+    margin-bottom: 0;
+    margin-top: 0;
+    position: absolute;
+    top: 8px;
+    right: 0;
+  }
+}
+/* Logo */
+body.in-maintenance #credit .logo a {
+  background: transparent url("../images/mx_logo.png") no-repeat 0 0;
+}
+
+#credit .logo a {
+  background: transparent url("../images/mx_logo.png") no-repeat 0 0;
+  clear: right; /* LTR */
+  float: right; /* LTR */
+  height: 0;
+  overflow: hidden;
+  padding: 70px 0 0;
+  width: 180px;
+}
+
+.form-actions {
+  #edit-submit {
+    @include orange-button;
+  }
+  #edit-save {
+    @include orange-button;
+  }
+}
+
+

@@ -1,0 +1,172 @@
+<?php
+/**
+ * @file
+ * Code for the open hourglass displays feature.
+ */
+
+include_once 'open_hourglass_displays.features.inc';
+
+/**
+ * Implements hook_form_FORM_ID_alter
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ */
+function open_hourglass_displays_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+  switch($form['#id']) {
+    case 'views-exposed-form-time-entry-list-total-time-block-admin':
+    case 'views-exposed-form-time-entry-list-user-total-time':
+    case 'views-exposed-form-monthly-time-entry-overview-monthly-overview-chart':
+    case 'views-exposed-form-weekly-time-entry-overview-weekly-chart':
+      hide($form);
+    break;
+    case 'views-exposed-form-monthly-time-entry-overview-monthly':
+    case 'views-exposed-form-weekly-time-entry-overview-weekly':
+    case 'views-exposed-form-time-entry-list-time-entry-list':
+      if (!array_key_exists('project', $form)) {
+        return;
+      }
+      $query = db_select('node', 'n')
+        ->fields('n', array('nid', 'title'))
+        ->condition('status', 1, '=')
+        ->condition('type', array('project'), 'IN');
+
+      $results = $query->execute();
+      if (empty($results)) {
+        return;
+      }
+      $options = array('' => '--Select--');
+      foreach($results as $result) {
+        $options[$result->nid] = $result->title;
+      }
+
+      $form['project'] = array(
+        '#type' => 'select',
+        '#options' => $options,
+      );
+    break;
+  }
+}
+
+/**
+ * Implements hook_view_pre_render
+ * @param $view
+ */
+function open_hourglass_displays_views_pre_render(&$view) {
+  if ($view->name != 'weekly_time_entry_overview') {
+    return;
+  }
+  $results = $view->result;
+  $week = date('W');
+  $year = date('Y');
+  for($day=1; $day<=7; $day++)
+  {
+    $days[] = date('l (m/d/Y)', strtotime($year."W".$week.$day));
+  }
+  foreach ($results as $key => $result) {
+    if (!in_array($result->field_data_field_time_entry_date_field_time_entry_date_value, $days)) {
+      unset($results[$key]);
+    }
+  }
+  $view->result = $results;
+}
+
+/**
+ * Implements hook_view_pre_execute
+ */
+function open_hourglass_displays_views_pre_execute(&$view) {
+  $new_query = _open_hourglass_displays_alter_views_query($view);
+  if (isset($new_query)) {
+    $view->build_info['query'] = $new_query;
+  }
+}
+
+/**
+ * Perform any views query altering that will be used in hook_views_pre_execute
+ * @param $view
+ * @return $this|null $new_query
+ */
+function _open_hourglass_displays_alter_views_query($view) {
+  $new_query = null;
+  switch ($view->name) {
+    // rewrite the query for weekly time entry to properly group time entry by day
+    case 'weekly_time_entry_overview':
+      $new_query = db_select('node')
+        ->condition('node.status', 1, '=')
+        ->condition('node.type', array('time_entry'), 'IN');
+      $new_query->leftJoin('users', 'users_node', 'node.uid = users_node.uid');
+      $new_query->leftJoin('field_data_field_time_entry_project', 'field_data_field_time_entry_project', 'field_data_field_time_entry_project.entity_id = node.nid');
+      $new_query->leftJoin('field_data_field_time_entry_date', 'field_data_field_time_entry_date', 'field_data_field_time_entry_date.entity_id = node.nid');
+      $new_query->leftJoin('field_data_field_time_entry_time_spent', 'field_data_field_time_entry_time_spent', 'field_data_field_time_entry_time_spent.entity_id = node.nid');
+      $new_query->addExpression("DATE_FORMAT(field_data_field_time_entry_date.field_time_entry_date_value, '%W (%m/%d/%Y)')", "field_data_field_time_entry_date_field_time_entry_date_value");
+      $new_query->addExpression("MIN(node.nid)", "nid");
+      $new_query->addExpression("'node'", "field_data_field_time_entry_date_node_entity_type");
+      $new_query->addExpression("'node'", "field_data_field_time_entry_time_spent_node_entity_type");
+      $new_query->addExpression("SUM(field_data_field_time_entry_time_spent.field_time_entry_time_spent_value)", "field_data_field_time_entry_time_spent_field_time_entry_time");
+      $new_query->groupBy('field_data_field_time_entry_date_node_entity_type');
+      $new_query->groupBy('field_data_field_time_entry_date_field_time_entry_date_value');
+      $new_query->groupBy('field_data_field_time_entry_time_spent_node_entity_type');
+      $new_query->orderBy('field_data_field_time_entry_date.field_time_entry_date_value', 'DESC');
+      // build back exposed filters
+      if (isset($view->exposed_raw_input['uid'])) {
+        if($view->exposed_raw_input['uid'] != '') {
+          $uid = $view->filter['uid']->value[0];
+          $new_query->condition('users_node.uid', array($uid), 'IN');
+        }
+      }
+      if (isset($view->exposed_raw_input['project'])) {
+        if ($view->exposed_raw_input['project'] != '') {
+          $project = $view->filter['field_time_entry_project_target_id']->value['value'];
+          $new_query->condition('field_data_field_time_entry_project.field_time_entry_project_target_id', $project);
+        }
+      }
+    break;
+    // rewrite the query for monthly time entry view to properly group time entry by month
+    case 'monthly_time_entry_overview':
+      $new_query = db_select('node')
+        ->condition('node.status', 1, '=')
+        ->condition('node.type', array('time_entry'), 'IN');
+      $new_query->leftJoin('users', 'users_node', 'node.uid = users_node.uid');
+      $new_query->leftJoin('field_data_field_time_entry_project', 'field_data_field_time_entry_project', 'field_data_field_time_entry_project.entity_id = node.nid');
+      $new_query->leftJoin('field_data_field_time_entry_date','field_data_field_time_entry_date','field_data_field_time_entry_date.entity_id = node.nid');
+      $new_query->leftJoin('field_data_field_time_entry_time_spent', 'field_data_field_time_entry_time_spent', 'field_data_field_time_entry_time_spent.entity_id = node.nid');
+      $new_query->addExpression("DATE_FORMAT(field_data_field_time_entry_date.field_time_entry_date_value, '%M (%Y)')", "field_data_field_time_entry_date_field_time_entry_date_value");
+      $new_query->addExpression("MIN(node.nid)", "nid");
+      $new_query->addExpression("'node'", 'field_data_field_time_entry_date_node_entity_type');
+      $new_query->addExpression("'node'", 'field_data_field_time_entry_time_spent_node_entity_type');
+      $new_query->addExpression("SUM(field_data_field_time_entry_time_spent.field_time_entry_time_spent_value)", "field_data_field_time_entry_time_spent_field_time_entry_time");
+      $new_query->groupBy('field_data_field_time_entry_date_node_entity_type');
+      $new_query->groupBy('field_data_field_time_entry_date_field_time_entry_date_value');
+      $new_query->groupBy('field_data_field_time_entry_time_spent_node_entity_type');
+      $new_query->orderBy('field_data_field_time_entry_date.field_time_entry_date_value', 'DESC');
+      // build back exposed filters
+      if (isset($view->exposed_raw_input['uid'])) {
+        if($view->exposed_raw_input['uid'] != '') {
+          $uid = $view->filter['uid']->value[0];
+          $new_query->condition('users_node.uid', array($uid), 'IN');
+        }
+      }
+      if (isset($view->exposed_raw_input['project'])) {
+        if ($view->exposed_raw_input['project'] != '') {
+          $project = $view->filter['field_time_entry_project_target_id']->value['value'];
+          $new_query->condition('field_data_field_time_entry_project.field_time_entry_project_target_id', $project);
+        }
+      }
+    break;
+  }
+  return $new_query;
+}
+
+/**
+ * Implements hook preprocess_views_view
+ * @param $vars
+ */
+function open_hourglass_displays_preprocess_views_view(&$vars) {
+  // attaching the css and javascript
+  if ($vars['view']->name == 'projects') {
+    $path = drupal_get_path('module', 'open_hourglass_displays');
+    drupal_add_css($path . '/progress.css');
+    drupal_add_css($path . '/open_hourglass_displays.css');
+    drupal_add_js($path . '/open_hourglass_displays.js');
+  }
+}

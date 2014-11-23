@@ -1,0 +1,137 @@
+<?php
+/**
+ * @file
+ * Drupal needs this blank file.
+ */
+
+define('ADMIN_ROLE', 3);
+define('PROJECT_MANAGER_ROLE', 4);
+define('TIME_ENTRY_CT', 'time_entry');
+
+/**
+ * Implements hook_node_access
+ * @param $node
+ * @param $op
+ * @param $account
+ * @return string Whether to allow the user to edit the time entry
+ */
+function open_hourglass_permission_node_access($node, $op, $account) {
+  // Granting project managers the ability to edit time entries for the projects that they own
+  if ($op == 'update') {
+    if ($node->type === TIME_ENTRY_CT &&
+      array_key_exists(PROJECT_MANAGER_ROLE, $account->roles)) {
+      // Find the referenced project information and see if user is owner.
+      $lang = $node->language;
+      if (empty($node->field_time_entry_project[$lang])) {
+        return NODE_ACCESS_IGNORE;
+      }
+      $nid = $node->field_time_entry_project[$lang][0]['target_id'];
+      $project = node_load($nid);
+      if (node_access('update', $project, $account)) {
+        return NODE_ACCESS_ALLOW;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter
+ * Adding additional permisison check based on project assigned to user
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ */
+function open_hourglass_permission_form_time_entry_node_form_alter(&$form, &$form_state, $form_id) {
+  global $user;
+  // user 1 by-pass this permission check
+  if ($user->uid == 1) {
+    return;
+  }
+  $nids = open_hourglass_permission_time_entry_project($user);
+  $form_state['time_entry_project_nids'] = $nids;
+
+  // adding additional form validator to check project permissions
+  $form['#validate'][] = 'open_hourglass_permission_time_entry_node_form_validate';
+
+  // field should be defined by base feature
+  if (!array_key_exists('field_time_entry_project', $form)) {
+    return;
+  }
+  $lang = $form['language']['#value'];
+  $default_options = $form['field_time_entry_project'][$lang]['#options'];
+  if (empty($nids)) {
+    $form['field_time_entry_project'][$lang]['#options'] = array('_none' => t('-None-'));
+  }
+  else {
+    foreach ($nids as $nid) {
+      $new_options[$nid] = $default_options[$nid];
+    }
+    $form['field_time_entry_project'][$lang]['#options'] = array('_none' => t('-None-')) + $new_options;
+  }
+}
+
+/**
+ * Form validation callback
+ * Provide additional validation check to see if the user has permission to the project he selected
+ * @param $form
+ * @param $form_state
+ */
+function open_hourglass_permission_time_entry_node_form_validate($form, &$form_state) {
+  $lang = $form['language']['#value'];
+  $project_nids = $form_state['time_entry_project_nids'];
+  $project_value = $form_state['values']['field_time_entry_project'][$lang][0]['target_id'];
+  if (isset($project_value)) {
+    if (!in_array($project_value, $project_nids)) {
+      form_set_error('field_time_entry_project', t('You have selected an invalid project'));
+    }
+  }
+}
+
+/**
+ * Check to see if the current user has permission to add time entry to a specific project
+ * This can later be replaced by something such as OG.
+ *
+ * @param $account    Loaded user account object
+ * @return array      A list of nids user has permission to add time entry to
+ */
+function open_hourglass_permission_time_entry_project($account) {
+
+  if (empty($account)) {
+    global $user;
+    $account = $user;
+  }
+  $nids = array();
+  // 1. Check to see if the user has administrator role
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project')
+    ->propertyCondition('status', 1);
+
+  // 2. for authenticated users and project managers
+  // we check for if they have been assigned to projects
+  if(!array_key_exists(ADMIN_ROLE, $account->roles)) {
+    $query->fieldCondition('field_project_members', 'target_id', $account->uid);
+  }
+  $result = $query->execute();
+  if (!empty($result)) {
+    $nids = array_keys($result['node']);
+  }
+
+  // 3. Adding any authored project content to this list
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project')
+    ->propertyCondition('status', 1)
+    ->propertyCondition('uid', $account->uid);
+  $result = $query->execute();
+
+  if (!empty($result)) {
+    // find any project nodes authored but not in current permission list
+    $new_nids = array_diff(array_keys($result['node']), $nids);
+    if (!empty($new_nids)) {
+      $nids = array_merge($nids, $new_nids);
+      sort($nids);
+    }
+  }
+  return $nids;
+}

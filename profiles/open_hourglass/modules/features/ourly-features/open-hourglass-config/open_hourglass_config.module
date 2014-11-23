@@ -1,0 +1,173 @@
+<?php
+/**
+ * @file
+ * Code for the open_hourglass_config feature.
+ */
+
+include_once 'open_hourglass_config.features.inc';
+
+// @todo: we are putting field settings image field manually to a FID, we need to be able to find a way to update the field settings
+
+/**
+ * Implements hook_menu_alter
+ */
+function open_hourglass_config_menu_alter(&$items) {
+  // setting the user edit page as the default user page
+  // we do not need a user view page
+  unset($items['user/%user/view']);
+  $items['user/%user/edit']['type'] = MENU_DEFAULT_LOCAL_TASK;
+  $items['user/%user']['page callback'] = '_open_hourglass_config_menu_user';
+  $items['user/%user']['page arguments'] = array(1);
+
+  // Making the title more friendly
+  $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/add']['title callback'] = 'open_hourglass_term_add_title';
+  $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/add']['title arguments'] = array(3);
+
+}
+
+/**
+ * @param $vocabulary
+ * @return null|string
+ */
+function open_hourglass_term_add_title($vocabulary) {
+  return t('Add @title', array('@title' => $vocabulary->name));
+}
+
+function _open_hourglass_config_menu_user($account) {
+  drupal_goto('user/' . $account->uid . '/edit');
+}
+
+// @todo Use frontpage module for a better implementation
+/**
+ * Implements hook_init
+ */
+function open_hourglass_config_init() {
+  // redirect anonymous user to login page, this whole site should be locked down for anonymous users
+  global $user;
+  if ($user->uid === 0) {
+    if (arg(0) != 'user') {
+      drupal_goto('user/login');
+    }
+  }
+}
+
+/**
+ *  Implements hook_custom_theme
+ */
+function open_hourglass_custom_theme() {
+  // setting the user pages to use the our theme
+  if (arg(0) == 'user') {
+    return 'ourly';
+  }
+}
+
+/**
+ * Implements hook_user_login
+ * @param $edit
+ * @param $account
+ */
+function open_hourglass_config_user_login(&$edit, $account) {
+  // redirect user after login to the home page
+  $front_page = variable_get('site_frontpage', 'node');
+  $edit['redirect'] = $front_page;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter
+ */
+function open_hourglass_config_form_time_entry_node_form_alter(&$form, &$form_state, $form_id) {
+	// adding custom form validation for time entry node form
+	$form['#validate'][] = 'open_hourglass_config_time_entry_validate';
+}
+
+/**
+ * Custom validation callback
+ */
+function open_hourglass_config_time_entry_validate($form, &$form_state) {
+	$lang = $form_state['values']['language'];
+	$time_spent = $form_state['values']['field_time_entry_time_spent'][$lang][0]['value'];
+
+  if ($time_spent == 0) {
+    form_set_error('field_time_entry_time_spent', t('You must enter something greater than 0'));
+  }
+  // make sure time entered are in the multiple of .25
+	$quotient = $time_spent / .25;
+	if (stristr($quotient, '.')) {
+		form_set_error('field_time_entry_time_spent', t('Time spent should be made in the increment of .25'));
+	}
+}
+
+/**
+ * hook_form_FORM_ID_alter
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ */
+function open_hourglass_config_form_menu_edit_item_alter(&$form, &$form_state, $form_id) {
+  $form['bootstrap_icon'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Icon Name'),
+    '#description' => t('Enter the name of the icon from font-awesome icon list'),
+    '#weight' => 1,
+    '#default_value' => (array_key_exists('bootstrap_icon', $form['options']['#value'])) ? $form['options']['#value']['bootstrap_icon'] : '',
+  );
+  $form['#validate'][] = 'open_hourglass_config_menu_item_icon_save';
+}
+
+/**
+ * Submission handler to save menu item icon
+ * @param $form
+ * @param $form_state
+ */
+function open_hourglass_config_menu_item_icon_save($form, &$form_state) {
+  if (empty($form_state['values']['bootstrap_icon'])) {
+    return;
+  }
+  $form_state['values']['options']['bootstrap_icon'] = $form_state['values']['bootstrap_icon'];
+}
+
+/**
+ * Implements hook_form_alter
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ */
+function open_hourglass_config_form_alter(&$form, &$form_state, $form_id) {
+
+  if ($form['#form_id'] !== 'time_entry_node_form') {
+    return;
+  }
+
+  // Default submission button redirect to home
+  $form['actions']['submit']['#submit'][] = 'open_hourglass_config_save_done';
+
+  // Adding a add and new button.
+  $form['actions']['save_new'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save and New'),
+    '#submit' => array(
+      'node_form_submit',
+      'open_hourglass_config_save_new',
+    ),
+  );
+}
+
+/**
+ * Redirect home.
+ * @param $form
+ * @param $form_state
+ */
+function open_hourglass_config_save_done($form, &$form_state) {
+  // Redirect to home page.
+  drupal_goto('<front>');
+}
+
+/**
+ * Form submission handler
+ * @param $form
+ * @param $form_state
+ */
+function open_hourglass_config_save_new($form, &$form_state) {
+  // Forcing redirect.
+  drupal_goto('node/add/time-entry');
+}

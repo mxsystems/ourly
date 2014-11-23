@@ -1,0 +1,588 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the minimal installation profile.
+ */
+
+define('DRUPAL_ADMINISTRATOR_RID', 3);
+
+/**
+ * Implements hook_install().
+ *
+ * Performs actions to set up the site for this profile.
+ *
+ * @see system_install()
+ */
+function open_hourglass_install() {
+	
+  // Enable the admin theme.
+  theme_enable(array('bootstrap', 'ourly', 'shiny'));
+  variable_set('admin_theme', 'shiny');
+  variable_set('node_admin_theme', '1');
+  variable_set('theme_default', 'ourly');
+
+  // Enable default permissions for system roles.
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content'));
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('access content'));
+
+  // Setting default path
+  // variable_set('site_frontpage', 'time');
+
+  // disable user register
+  variable_set('user_register', 0);
+
+  $filtered_html_format = array(
+    'format' => 'filtered_html',
+    'name' => 'Filtered HTML',
+    'weight' => 0,
+    'filters' => array(
+      // URL filter.
+      'filter_url' => array(
+        'weight' => 0,
+        'status' => 1,
+      ),
+      // HTML filter.
+      'filter_html' => array(
+        'weight' => 1,
+        'status' => 1,
+      ),
+      // Line break filter.
+      'filter_autop' => array(
+        'weight' => 2,
+        'status' => 1,
+      ),
+      // HTML corrector filter.
+      'filter_htmlcorrector' => array(
+        'weight' => 10,
+        'status' => 1,
+      ),
+    ),
+  );
+  $filtered_html_format = (object) $filtered_html_format;
+  filter_format_save($filtered_html_format);
+
+  $full_html_format = array(
+    'format' => 'full_html',
+    'name' => 'Full HTML',
+    'weight' => 1,
+    'filters' => array(
+      // URL filter.
+      'filter_url' => array(
+        'weight' => 0,
+        'status' => 1,
+      ),
+      // Line break filter.
+      'filter_autop' => array(
+        'weight' => 1,
+        'status' => 1,
+      ),
+      // HTML corrector filter.
+      'filter_htmlcorrector' => array(
+        'weight' => 10,
+        'status' => 1,
+      ),
+    ),
+  );
+  $full_html_format = (object) $full_html_format;
+  filter_format_save($full_html_format);
+}
+
+/**
+ * Implements hook_install_tasks
+ */
+function open_hourglass_install_tasks() {
+
+  $task['features'] = array(
+    'display_name' => st('Install Our.ly Features'),
+    'type' => 'batch',
+    'display' => TRUE,
+    'function' => 'open_hourglass_install_features',
+  );
+
+  $task['config'] = array(
+    'display_name' => t('Install configuration settings'),
+    'type' => 'batch',
+    'display' => TRUE,
+    'function' => 'open_hourglass_install_config',
+  );
+
+  return $task;
+}
+
+/**
+ * Implements hook_install_tasks_alter().
+ */
+function open_hourglass_install_tasks_alter(&$tasks, $install_state) {
+  $tasks['install_finished']['function'] = 'open_hourglass_install_finished';
+  $tasks['install_select_profile']['display'] = FALSE;
+  $tasks['install_select_locale']['display'] = FALSE;
+  $tasks['install_select_locale']['run'] = INSTALL_TASK_SKIP;
+  $tasks['install_profile_modules']['display_name'] = st('Install Our.ly');
+  $tasks['install_configure_form']['display_name'] = st('Configure Our.ly');
+
+  // Set the installation theme.
+  _open_hourglass_set_theme('ourly_install');
+
+  // The "Welcome" screen needs to come after the first two steps
+  // (profile and language selection), despite the fact that they are disabled.
+  $new_task['install_welcome'] = array(
+    'display' => TRUE,
+    'display_name' => st('Welcome'),
+    'type' => 'form',
+    'run' => isset($install_state['parameters']['welcome']) ? INSTALL_TASK_SKIP : INSTALL_TASK_RUN_IF_REACHED,
+  );
+  $old_tasks = $tasks;
+  $tasks = array_slice($old_tasks, 0, 2) + $new_task + array_slice($old_tasks, 2);
+}
+
+/**
+ * Task callback: shows the welcome screen.
+ */
+function install_welcome($form, &$form_state, &$install_state) {
+  drupal_set_title(st('Welcome to Our.ly'));
+  $message = '<h1>' . st('Thank you for choosing Our.ly, a product by MX Systems.') . '</h1>';
+  $message .= '<p>' . st('Our.ly is a time tracking system that can be used to gage progress and budget utilization for one or more projects.  Our.ly can be used by your employees and contractors to better manage and record their time and by your project managers to obtain the most value out of a project!') . '</p>';
+
+  $form = array();
+  $form['welcome_message'] = array(
+    '#markup' => $message,
+  );
+  $form['actions'] = array(
+    '#type' => 'actions',
+  );
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => st("Let's Get Started!"),
+    '#weight' => 10,
+  );
+  return $form;
+}
+
+/**
+ * Submission Handler.
+ * @param $form
+ * @param $form_state
+ */
+function install_welcome_submit($form, &$form_state) {
+  global $install_state;
+
+  $install_state['parameters']['welcome'] = 'done';
+  $install_state['parameters']['locale'] = 'en';
+}
+
+/**
+ * Custom installation task; perform final steps and redirect the user to the new site if there are no errors.
+ *
+ * @param $install_state
+ *   An array of information about the current installation state.
+ *
+ * @return
+ *   A message informing the user about errors if there was some.
+ */
+function open_hourglass_install_finished(&$install_state) {
+  drupal_set_title(st('@drupal installation complete', array('@drupal' => drupal_install_profile_distribution_name())), PASS_THROUGH);
+  $messages = drupal_set_message();
+
+  // Disable Update module.
+  module_disable(array('update'));
+
+  // Remember the profile which was used.
+  variable_set('install_profile', drupal_get_profile());
+  variable_set('install_task', 'done');
+
+  // Grant user 1 administrator role
+  $admin_role = user_role_load(DRUPAL_ADMINISTRATOR_RID);
+  if (!empty($admin_role)) {
+    $account = user_load(1);
+    $account->roles[DRUPAL_ADMINISTRATOR_RID] = $admin_role->name;
+    user_save($account);
+  }
+
+  // Set error level
+  variable_set('error_level', 0);
+
+  // Flush all caches to ensure that any full bootstraps during the installer
+  // do not leave stale cached data, and that any content types or other items
+  // registered by the install profile are registered correctly.
+  drupal_flush_all_caches();
+
+  // Install profiles are always loaded last
+  db_update('system')
+    ->fields(array('weight' => 1000))
+    ->condition('type', 'module')
+    ->condition('name', drupal_get_profile())
+    ->execute();
+
+  // Cache a fully-built schema.
+  drupal_get_schema(NULL, TRUE);
+
+  // Run cron to populate update status tables (if available) so that users
+  // will be warned if they've installed an out of date Drupal version.
+  // Will also trigger indexing of profile-supplied content or feeds.
+  drupal_cron_run();
+
+  if (isset($messages['error'])) {
+    $output = '<p>' . (isset($messages['error']) ? st('Review the messages above before visiting <a href="@url">your new site</a>.', array('@url' => url(''))) : st('<a href="@url">Visit your new site</a>.', array('@url' => url('')))) . '</p>';
+    return $output;
+  }
+  else {
+    // Since any module can add a drupal_set_message, this can bug the user
+    // when we redirect him to the front page. For a better user experience,
+    // remove all the message that are only "notifications" message.
+    drupal_get_messages('status', TRUE);
+    drupal_get_messages('completed', TRUE);
+    // Migrate adds its messages under the wrong type, see #1659150.
+    drupal_get_messages('ok', TRUE);
+
+    // If we don't install drupal using Drush, redirect the user to the front
+    // page.
+    if (!drupal_is_cli()) {
+//      if (module_exists('overlay')) {
+//        // Special case when no clean urls.
+//        $fragment = empty($GLOBALS['conf']['clean_url']) ? urlencode('?q=time') : 'time';
+//        drupal_goto('', array('fragment' => 'overlay=' . $fragment));
+//      }
+//      else {
+
+        // @todo: Temporary right now, need to build getting started
+        drupal_goto('time');
+      // }
+    }
+  }
+}
+
+
+/**
+ * Enabling features
+ */
+function open_hourglass_install_features() {
+  $operations = array();
+  $features = array(
+    'Configuration' => 'open_hourglass_config',
+    'Import' => 'open_hourglass_import',
+    'Display' => 'open_hourglass_displays',
+    'Help' => 'open_hourglass_help',
+    'Menu' => 'open_hourglass_menu',
+    'Permissions' => 'open_hourglass_permission',
+  );
+  foreach ($features as $name => $module) {
+    $operations[] = array(
+      '_open_hourglass_install_features',
+      array(
+        $module,
+        array(t('Enabling @feature', array('@feature' => $name))),
+      ),
+    );
+  }
+  $batch = array(
+    'title' => t('Enabling Features'),
+    'operations' => $operations,
+  );
+  return $batch;
+}
+
+/**
+ * Batch callback to enable feature modules.
+ * @param $module
+ * @param $operation
+ * @param $context
+ */
+function _open_hourglass_install_features($module, $operation, &$context) {
+  $context['message'] = t('Enabling @feature', array('@feature' => $module));
+  module_enable(array($module));
+}
+
+/**
+ * Callback function from install_tasks.
+ */
+function open_hourglass_install_config() {
+  if (!module_exists('open_hourglass_config')) {
+    return;
+  }
+  $operations = array();
+  // Demo contents.
+  if (variable_get('open_hourglass_demo_content', '0') == '1') {
+    $operations[] = array('_open_hourglass_demo_contents', array(t('Importing demo contents.')));
+  }
+  // Copy some images into the file table.
+  $operations[] = array('_open_hourglass_default_images', array(t('Copying images.')));
+
+  // Enable the user edit panel.
+  $operations[] = array('_open_hourglass_page_enable', array('user_edit', FALSE, array(t('Enabling page templates'))));
+
+  $batch = array(
+    'title' => t('Configuring additional features'),
+    'operations' => $operations,
+  );
+  return $batch;
+}
+
+/**
+ * Generating some demo contents.
+ */
+function _open_hourglass_demo_contents($operation, &$context) {
+  $context['message'] = t('Importing demo contents.');
+
+  // Putting some initial terms into the category
+  $vocabulary = taxonomy_vocabulary_machine_name_load('category');
+  if (!empty($vocabulary)) {
+    $categories = array('discovery', 'design', 'definition', 'configuration', 'deployment', 'QA', 'documentation', 'project management');
+    foreach ($categories as $category) {
+      $term = new stdClass();
+      $term->vid = $vocabulary->vid;
+      $term->name = $category;
+      taxonomy_term_save($term);
+    }
+  }
+
+  // Adding terms into the clients.
+  $vocabulary = taxonomy_vocabulary_machine_name_load('client');
+  if (!empty($vocabulary)) {
+    $clients = array('CHOAM', 'Acme Corp.', 'Sirius Cybernetics Corp.', 'Rich Industries', 'Frobozz Magic Co.', 'Oceanic Airlines');
+    foreach ($clients as $client) {
+      $term = new stdClass();
+      $term->vid = $vocabulary->vid;
+      $term->name = $client;
+      taxonomy_term_save($term);
+    }
+  }
+
+  // Adding some users.
+  $pm_role = user_role_load_by_name('project manager');
+
+  $account = new stdClass();
+  $account->name = 'carol.h.astle';
+  $account->mail = 'carol.h.astle@randomfakeemail.com';
+  $account->pass = md5(rand());
+  $account->roles = array(
+    '2' => 'authenticated user',
+  );
+  $account->status = 1;
+  $users[] = $account;
+
+  $account = new stdClass();
+  $account->name = 'mason.o.miller';
+  $account->mail = 'mason.o.miller@randomfakeemail.com';
+  $account->pass = md5(rand());
+  $account->roles = array(
+    '2' => 'authenticated user',
+  );
+  $account->status = 1;
+  if (!empty($pm_role)) {
+    $account->roles[$pm_role->rid] = $pm_role->name;
+  }
+  $users[] = $account;
+
+  $account = new stdClass();
+  $account->name = 'robert.l.ladd';
+  $account->mail = 'robert.l.ladd@randomfakeemail.com';
+  $account->pass = md5(rand());
+  $account->roles = array(
+    '2' => 'authenticated user',
+  );
+  $account->status = 1;
+  if (!empty($pm_role)) {
+    $account->roles[$pm_role->rid] = $pm_role->name;
+  }
+  $users[] = $account;
+
+  foreach($users as $user) {
+    user_save($user);
+  }
+
+  // Adding some projects.
+  $projects = array(
+    'Level 2 Expansion' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse faucibus porttitor metus quis rutrum. Nullam ornare ornare sapien, sit amet porta tortor aliquam id. Vestibulum dignissim leo finibus nulla suscipit vulputate. Donec quis orci dapibus, sollicitudin lorem eget, tincidunt orci. Maecenas elit dui, faucibus eget dapibus dictum, sagittis vel urna. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis quis tellus ac orci molestie pretium sit amet at ex. Praesent pulvinar vitae dui egestas porta. Integer euismod egestas turpis id sagittis. Maecenas commodo vel enim eget vestibulum. Integer convallis nisi non feugiat tincidunt.',
+    'Seashore Support' => 'Donec ut fermentum turpis, vitae tincidunt lectus. Aliquam tempor ligula vitae nisi vulputate euismod. Cras venenatis nibh quis neque lobortis ullamcorper. Nulla ante purus, pellentesque tincidunt tincidunt ac, porta vel eros. Nunc ac tellus a neque aliquet vehicula et sed sem. Donec cursus nec nunc at aliquet. Sed congue nibh eu nunc dignissim fringilla. Maecenas lacinia lacus ut enim porttitor, sed fringilla eros mollis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec tempor orci vitae dui vestibulum luctus. Phasellus non libero accumsan, finibus metus quis, ultricies tortor. Sed id odio semper, laoreet mi nec, condimentum urna. Curabitur vel commodo felis, sed vulputate neque.',
+    'Project safekeep' => 'Aliquam sed feugiat lacus, non aliquam neque. Phasellus sed feugiat purus. Pellentesque id molestie nibh, quis efficitur tortor. Morbi sed massa vel massa egestas rhoncus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras volutpat ipsum orci, vel vulputate risus rhoncus et. Phasellus tortor lorem, varius varius sapien et, vestibulum luctus sapien. Fusce suscipit purus tortor, vel elementum libero laoreet non. Praesent eget fringilla neque. Quisque feugiat ligula nec risus elementum, imperdiet luctus mauris facilisis. Morbi ac urna eget arcu ultrices egestas. Quisque dictum dapibus vestibulum.',
+  );
+  foreach ($projects as $title => $body) {
+    _open_hourglass_demo_contents_node($title, $body, 'project');
+  }
+
+  // Adding some random time entries.
+  for ($i=0; $i<500; $i++) {
+    _open_hourglass_demo_contents_node('', '', 'time_entry');
+  }
+}
+
+/**
+ * Generate some demo contents.
+ * @param $title
+ * @param $body
+ * @param $type
+ */
+function _open_hourglass_demo_contents_node($title, $body, $type) {
+  $node = new stdClass();
+  $node->title = $title;
+  $node->type = $type;
+  node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+  $node->language = LANGUAGE_NONE; // Or e.g. 'en' if locale is enabled
+  $node->uid = 1;
+  $node->status = 1; //(1 or 0): published or not
+  $node->promote = rand(0, 1);
+
+  switch($type) {
+    case 'project':
+      $node->field_project_description[LANGUAGE_NONE][0] = array(
+        'value' => $body,
+        'format' => 'filtered_html',
+        'safe_value' => $body,
+      );
+      // Load some client taxonomy.
+      $client = taxonomy_vocabulary_machine_name_load('client');
+      if (!empty($client)) {
+        $query = new EntityFieldQuery();
+        $query->entityCondition('entity_type', 'taxonomy_term')
+          ->propertyCondition('vid', $client->vid);
+        $result = $query->execute();
+      }
+      if (!empty($result)) {
+        $tids = array_keys($result['taxonomy_term']);
+        $tid = array_rand($tids);
+        $node->field_project_client[LANGUAGE_NONE][0]['tid'] = $tids[$tid];
+      }
+      $node->field_project_budgeted_hours[LANGUAGE_NONE][0]['value'] = rand(1, 900);
+    break;
+    case 'time_entry';
+      if ($body == '') {
+        $source = drupal_get_path('profile', 'open_hourglass') . '/data';
+        $contents = file_get_contents($source . '/quotes.txt');
+        if (!empty($contents)) {
+          $quotes = nl2br($contents);
+          $quotes = explode('<br />', $quotes);
+        }
+        $item = array_rand($quotes);
+        $body = $quotes[$item];
+      }
+      $node->promote = 0;
+
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'user')
+        ->propertyCondition('status', 1);
+      $results = $query->execute();
+      if (!empty($results)) {
+        $uids = array_keys($results['user']);
+        $random = array_rand($uids);
+        $node->uid = $uids[$random];
+      }
+
+      // Load some category taxonomy.
+        $category = taxonomy_vocabulary_machine_name_load('category');
+        if (!empty($category)) {
+          $query = new EntityFieldQuery();
+          $query->entityCondition('entity_type', 'taxonomy_term')
+            ->propertyCondition('vid', $category->vid);
+          $results = $query->execute();
+          if (!empty($results)) {
+            $tids = array_keys($results['taxonomy_term']);
+            $tid = array_rand($tids);
+            $node->field_time_entry_category[LANGUAGE_NONE][0]['tid'] = $tids[$tid];
+          }
+        }
+        // Load and assign the time entry into a random project if exists
+        $query = new EntityFieldQuery();
+        $query->entityCondition('entity_type', 'node')
+          ->entityCondition('bundle', 'project')
+          ->propertyCondition('status', NODE_PUBLISHED);
+        $results = $query->execute();
+        if (!empty($results)) {
+          $nids = array_keys($results['node']);
+          $nid = array_rand($nids);
+          $node->field_time_entry_project[LANGUAGE_NONE][0]['target_id'] = $nids[$nid];
+        }
+        // Note.
+        $node->field_time_entry_note[LANGUAGE_NONE][0] = array(
+          'value' => $body,
+          'format' => null,
+          'safe_value' => $body,
+        );
+
+        $time_spent = array();
+        for ($i = 1; $i <= 32; $i++) {
+          $time_spent[] = .25 * $i;
+        }
+        $time = array_rand($time_spent);
+        $node->field_time_entry_time_spent[LANGUAGE_NONE][0]['value'] = $time_spent[$time];
+
+        // Create random timestamp within 1 year.
+        $beginning = REQUEST_TIME - (3600 * 24 * 365);
+        $random_timestamp = rand($beginning, REQUEST_TIME);
+        $node->field_time_entry_date[LANGUAGE_NONE][0] = array(
+          'value' => date('y-m-d', $random_timestamp) . ' 00:00:00',
+          'timezone' => 'America/New_York',
+          'timezone_db' => 'America/New_York',
+          'date_type' => 'datetime',
+        );
+    break;
+  }
+  node_save($node);
+}
+
+/**
+ * Install some default images into the managed file directory
+ */
+function _open_hourglass_default_images($operation, &$context) {
+  $context['message'] = t('Copying images.');
+  $destination = 'public://default_images';
+  if (!file_prepare_directory($destination, FILE_CREATE_DIRECTORY)) {
+    throw new Exception("Unable to create directory $destination.");
+  }
+  $source = drupal_get_path('profile', 'open_hourglass') . '/images';
+  $files = file_scan_directory($source, '/.*\.(png|jpg)$/');
+  foreach ($files as $file) {
+    $result = file_unmanaged_copy($file->uri, $destination, FILE_EXISTS_REPLACE);
+    if (!$result) {
+      throw new Exception("Unable to copy {$file->uri} to $destination.");
+    }
+    // save the successful files into the managed directory
+    $save = new stdClass();
+    $save->uid = 1;
+    $save->uri = $result;
+    $save->filename = $file->filename;
+    $parts = pathinfo($save->filename);
+    $save->filemime = 'image/' . $parts['extension'];
+    $save->status = 0;
+    $saved = file_save($save);
+  }
+}
+
+/**
+ * Menu callback to enable or disable a page
+ */
+function _open_hourglass_page_enable($page_name, $disable, $operation, &$context) {
+  $context['message'] = t('Enabling page templates.');
+  $page = page_manager_cache_load($page_name);
+  if ($page->locked) {
+    if ($disable) {
+      drupal_set_message(t('Unable to disable due to lock.'));
+    }
+    else {
+      drupal_set_message(t('Unable to enable due to lock.'));
+    }
+  }
+  else {
+    if ($function = ctools_plugin_get_function($page->subtask, 'enable callback')) {
+      $result = $function($page, $disable);
+      menu_rebuild();
+
+      // We want to re-cache this if it's changed so that status is properly
+      // updated on the changed form.
+      if (!empty($page->changed)) {
+        page_manager_set_page_cache($page);
+      }
+    }
+  }
+}
+
+/**
+ * Force-set a theme at any point during the execution of the request.
+ */
+function _open_hourglass_set_theme($target_theme) {
+  if ($GLOBALS['theme'] != $target_theme) {
+    unset($GLOBALS['theme']);
+    drupal_static_reset();
+    $GLOBALS['conf']['maintenance_theme'] = $target_theme;
+    _drupal_maintenance_theme();
+  }
+}

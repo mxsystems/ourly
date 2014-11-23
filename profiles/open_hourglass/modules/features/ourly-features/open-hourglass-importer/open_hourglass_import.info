@@ -1,0 +1,13 @@
+name = Open Hourglass Import
+description = Provide importers to import project and time entry related data
+core = 7.x
+package = Open Hourglass
+version = 7.x-1.0
+project = open_hourglass_import
+dependencies[] = ctools
+dependencies[] = feeds
+features[ctools][] = feeds:feeds_importer_default:1
+features[features_api][] = api:2
+features[feeds_importer][] = project_importer
+features[feeds_importer][] = time_entry_importer
+features[feeds_importer][] = user_importer

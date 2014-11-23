@@ -1,0 +1,80 @@
+name = Our.ly
+distribution_name = Our.ly
+description = A distribution for tracking time
+version = 7.x-1.0
+core = 7.x
+exclusive = 1
+
+dependencies[] = block
+dependencies[] = color
+dependencies[] = comment
+;dependencies[] = contextual
+;dependencies[] = dashboard
+dependencies[] = help
+dependencies[] = image
+dependencies[] = list
+dependencies[] = menu
+dependencies[] = number
+dependencies[] = options
+;dependencies[] = path
+dependencies[] = taxonomy
+dependencies[] = dblog
+dependencies[] = search
+;dependencies[] = shortcut
+;dependencies[] = toolbar
+dependencies[] = overlay
+;dependencies[] = field_ui
+dependencies[] = file
+;dependencies[] = rdf
+
+; Admin UX
+dependencies[] = jquery_update
+dependencies[] = admin_views
+;dependencies[] = admin_menu
+;dependencies[] = breakpoints
+;dependencies[] = navbar
+dependencies[] = module_filter
+dependencies[] = boxes
+dependencies[] = block_class
+
+; Panels
+dependencies[] = page_manager
+dependencies[] = views_content
+dependencies[] = panels
+
+; Views
+dependencies[] = ctools
+dependencies[] = views
+;dependencies[] = views_ui
+dependencies[] = views_bulk_operations
+dependencies[] = views_data_export
+
+; Token
+dependencies[] = token
+
+; Features
+dependencies[] = strongarm
+dependencies[] = features
+
+; Miscellaneous
+dependencies[] = job_scheduler
+dependencies[] = feeds
+dependencies[] = entity
+dependencies[] = libraries
+;dependencies[] = devel
+dependencies[] = diff
+dependencies[] = context
+;dependencies[] = context_ui
+dependencies[] = entityreference
+dependencies[] = auto_nodetitle
+dependencies[] = charts
+dependencies[] = charts_google
+dependencies[] = field_permissions
+
+; Fields dependencides
+dependencies[] = link
+dependencies[] = email
+dependencies[] = date
+dependencies[] = date_views
+dependencies[] = date_popup
+dependencies[] = name

@@ -1,0 +1,89 @@
+/**
+ * This file should get overwritten if Method 1 is used. If Method 2 is chosen,
+ * remove this comment and start adding your styles to this file.
+ */
+@import url('base-admin-3.css');
+@import url('base-admin-3-responsive.css');
+@import url('custom.css');
+@import url('pages/dashboard.css');
+@import url('font-awesome.css');
+@import url('http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600');
+@import url('font-awesome.min.css');
+@import url('ui-lightness/jquery-ui-1.10.0.custom.min.css');
+@import url('pages/signin.css');
+
+.full-width {
+    width:100%;
+}
+
+.left {
+    float:left;
+}
+
+.margin10 {
+    margin:20px;
+}
+
+.margin5 {
+    margin:10px 5px;
+}
+
+.right {
+	float:right;	
+}
+
+/**
+ * Override Z-index for contextual links
+ */
+.contextual-links-region,
+.pane-menu {
+    z-index:99;
+}
+
+/*
+ * Sign in page
+ */
+.login-footer {
+    margin:1.5em auto;
+    width:100%;
+    text-shadow: 1px 1px 0px #fff;
+    line-height: 19px;
+    text-align: center;
+}
+
+.error input {
+    box-shadow: none;
+    background:red;
+    color:white;
+}
+
+/**
+ * Password page
+ */
+.page-user-password .region.row {
+    margin-left:0;
+    margin-right:0;
+}
+
+/**
+ * Charts Hover Fix
+ */
+div.chart {
+    z-index:99;
+}
+
+/**
+ * Project page
+ */
+.page-projects div.col-md-6 .widget-content img {
+    float:left;
+    margin:10px;
+}
+
+.page-projects div.col-md-6 .widget-content div {
+    clear:both;
+}
+
+.page-projects .text-center {
+    clear:both;
+}

@@ -1,0 +1,31 @@
+/*.view-projects .views-row {
+    width:45%;
+    margin:5px;
+    float:left;
+    padding:10px;
+    background:#EEE;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
+    -moz-box-shadow:    2px 2px 2px 2px #ccc;
+    -webkit-box-shadow: 2px 2px 2px 2px #ccc;
+    box-shadow:         2px 2px 2px 2px #ccc;
+}
+
+.view-projects .views-field-title {
+    font-weight:bold;
+}
+
+.view-projects .views-field-field-project-description {
+    margin:10px 0;
+}
+
+.view-projects .views-field-field-client-image {
+    float:left;
+}
+
+.view-projects .views-field-nothing {
+    float:right;
+    font-size:10px;
+}/*

@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * Code for the Open Hourglass Help feature.
+ */
+
+include_once 'open_hourglass_help.features.inc';
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function open_hourglass_help_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+}

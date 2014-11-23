@@ -1,0 +1,12 @@
+name = Open Hourglass Help
+description = Manages help contents for our.ly
+core = 7.x
+package = Open Hourglass
+version = 7.x-1.0
+project = open_hourglass_help
+dependencies[] = ctools
+dependencies[] = page_manager
+features[ctools][] = page_manager:pages_default:1
+features[features_api][] = api:2
+features[page_manager_pages][] = help
+no autodetect = 1

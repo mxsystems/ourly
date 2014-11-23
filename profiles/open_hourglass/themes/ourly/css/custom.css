@@ -1,0 +1,25 @@
+/*------------------------------------------------------------------
+
+[Custom Stylesheet]
+
+
+Last change:	03/25/2013
+Assigned to:	You
+
+-------------------------------------------------------------------*/
+.password-field {
+    padding:11px 15px 10px 50px;
+    height:40px;
+}
+
+.btn {
+    margin:10px 0;
+}
+
+fieldset legend.panel-heading {
+
+}
+
+legend div.fieldset-legend {
+    line-height: 16px;
+}

@@ -1,0 +1,48 @@
+<?php
+/**
+ * @file
+ * Drupal needs this blank file.
+ */
+
+/**
+ * Implements hook_menu.
+ * @return mixed
+ */
+function open_hourglass_menu_menu() {
+  // Our placeholder report menu item.
+  $items['report'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => t('Report'),
+    'page callback' => 'open_hourglass_menu_access_main',
+    'page arguments' => array('project manager', 'administrator'),
+    'access callback' => 'open_hourglass_menu_access',
+    'access arguments' => array('project manager', 'administrator'),
+  );
+  return $items;
+}
+
+/**
+ * Stub output callback
+ * @return string
+ */
+function open_hourglass_menu_access_main() {
+  return '';
+}
+
+/**
+ * Custom access callback that checks for an array of role names for access
+ * @return bool
+ */
+function open_hourglass_menu_access() {
+  $roles = func_get_args();
+  if (empty($roles)) {
+    return TRUE;
+  }
+  global $user;
+  foreach ($roles as $role) {
+    if (in_array($role, $user->roles)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
