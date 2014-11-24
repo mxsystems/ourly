@@ -11,9 +11,9 @@
  */
 function open_hourglass_form_install_configure_form_alter(&$form, $form_state) {
   // When using Drush, let it set the default password.
-  if (drupal_is_cli()) {
-    return;
-  }
+//  if (drupal_is_cli()) {
+//    return;
+//  }
   // Set a default name for the dev site and change title's label.
   $form['site_information']['site_name']['#title'] = 'Our.ly';
   $form['site_information']['site_mail']['#title'] = 'Our.ly maintenance email address';
@@ -22,12 +22,12 @@ function open_hourglass_form_install_configure_form_alter(&$form, $form_state) {
   // Set a default country so we can benefit from it on Address Fields.
   $form['server_settings']['site_default_country']['#default_value'] = 'US';
 
-  // Use "admin" as the default username.
-  $form['admin_account']['account']['name']['#default_value'] = 'admin';
-
-  // Set the default admin password.
-  $form['admin_account']['account']['pass']['#value'] = 'admin';
-
+  if (!drupal_is_cli()) {
+    // Use "admin" as the default username.
+    $form['admin_account']['account']['name']['#default_value'] = 'admin';
+    // Set the default admin password.
+    $form['admin_account']['account']['pass']['#value'] = 'admin';
+  }
   // Hide Update Notifications.
   $form['update_notifications']['#access'] = FALSE;
 
@@ -74,21 +74,23 @@ function open_hourglass_form_install_configure_form_alter(&$form, $form_state) {
     '#default_value' => '1',
   );
 
-  // Make a "copy" of the original name and pass form fields.
-  $form['admin_account']['setup_account']['account']['name'] = $form['admin_account']['account']['name'];
-  $form['admin_account']['setup_account']['account']['pass'] = $form['admin_account']['account']['pass'];
-  $form['admin_account']['setup_account']['account']['pass']['#value'] = array('pass1' => 'admin', 'pass2' => 'admin');
+  if (!drupal_is_cli()) {
+    // Make a "copy" of the original name and pass form fields.
+    $form['admin_account']['setup_account']['account']['name'] = $form['admin_account']['account']['name'];
+    $form['admin_account']['setup_account']['account']['pass'] = $form['admin_account']['account']['pass'];
+    $form['admin_account']['setup_account']['account']['pass']['#value'] = array('pass1' => 'admin', 'pass2' => 'admin');
 
-  // Use "admin" as the default username.
-  $form['admin_account']['account']['name']['#access'] = FALSE;
+    // Use "admin" as the default username.
+    $form['admin_account']['account']['name']['#access'] = FALSE;
 
-  // Make the password "hidden".
-  $form['admin_account']['account']['pass']['#type'] = 'hidden';
-  $form['admin_account']['account']['mail']['#access'] = FALSE;
+    // Make the password "hidden".
+    $form['admin_account']['account']['pass']['#type'] = 'hidden';
+    $form['admin_account']['account']['mail']['#access'] = FALSE;
 
-  // Add a custom validation that needs to be trigger before the original one,
-  // where we can copy the site's mail as the admin account's mail.
-  array_unshift($form['#validate'], 'open_hourglass_custom_setting');
+    // Add a custom validation that needs to be trigger before the original one,
+    // where we can copy the site's mail as the admin account's mail.
+    array_unshift($form['#validate'], 'open_hourglass_custom_setting');
+  }
 
   // Custom submission function to decide if we need to install demo content.
   array_unshift($form['#submit'], 'open_hourglass_demo_content');

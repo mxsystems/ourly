@@ -349,11 +349,12 @@ function _open_hourglass_demo_contents($operation, &$context) {
 
   // Adding some users.
   $pm_role = user_role_load_by_name('project manager');
+  module_load_include('inc', 'content', 'includes/password');
 
   $account = new stdClass();
-  $account->name = 'carol.h.astle';
-  $account->mail = 'carol.h.astle@randomfakeemail.com';
-  $account->pass = md5(rand());
+  $account->name = 'demo_user';
+  $account->mail = 'demo_user@ourly.works';
+  $account->pass = user_hash_password('demo_user');
   $account->roles = array(
     '2' => 'authenticated user',
   );
@@ -361,9 +362,9 @@ function _open_hourglass_demo_contents($operation, &$context) {
   $users[] = $account;
 
   $account = new stdClass();
-  $account->name = 'mason.o.miller';
-  $account->mail = 'mason.o.miller@randomfakeemail.com';
-  $account->pass = md5(rand());
+  $account->name = 'demo_pm';
+  $account->mail = 'demo_pm@ourly.works';
+  $account->pass = user_hash_password('demo_pm');
   $account->roles = array(
     '2' => 'authenticated user',
   );
@@ -374,16 +375,14 @@ function _open_hourglass_demo_contents($operation, &$context) {
   $users[] = $account;
 
   $account = new stdClass();
-  $account->name = 'robert.l.ladd';
-  $account->mail = 'robert.l.ladd@randomfakeemail.com';
-  $account->pass = md5(rand());
+  $account->name = 'demo_admin';
+  $account->mail = 'demo_admin@ourly.works';
+  $account->pass = user_hash_password('demo_admin');
   $account->roles = array(
     '2' => 'authenticated user',
+    DRUPAL_ADMINISTRATOR_RID => 'administrator',
   );
   $account->status = 1;
-  if (!empty($pm_role)) {
-    $account->roles[$pm_role->rid] = $pm_role->name;
-  }
   $users[] = $account;
 
   foreach($users as $user) {

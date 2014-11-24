@@ -23,19 +23,8 @@ function open_hourglass_permission_user_default_permissions() {
   // Exported permission: 'access all views'.
   $permissions['access all views'] = array(
     'name' => 'access all views',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'views',
-  );
-
-  // Exported permission: 'access comments'.
-  $permissions['access comments'] = array(
-    'name' => 'access comments',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'comment',
   );
 
   // Exported permission: 'access content'.
@@ -79,18 +68,14 @@ function open_hourglass_permission_user_default_permissions() {
   // Exported permission: 'access site in maintenance mode'.
   $permissions['access site in maintenance mode'] = array(
     'name' => 'access site in maintenance mode',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'system',
   );
 
   // Exported permission: 'access site reports'.
   $permissions['access site reports'] = array(
     'name' => 'access site reports',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'system',
   );
 
@@ -107,54 +92,35 @@ function open_hourglass_permission_user_default_permissions() {
   // Exported permission: 'administer actions'.
   $permissions['administer actions'] = array(
     'name' => 'administer actions',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'system',
   );
 
   // Exported permission: 'administer blocks'.
   $permissions['administer blocks'] = array(
     'name' => 'administer blocks',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'block',
-  );
-
-  // Exported permission: 'administer comments'.
-  $permissions['administer comments'] = array(
-    'name' => 'administer comments',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'comment',
   );
 
   // Exported permission: 'administer content types'.
   $permissions['administer content types'] = array(
     'name' => 'administer content types',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'node',
   );
 
   // Exported permission: 'administer features'.
   $permissions['administer features'] = array(
     'name' => 'administer features',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'features',
   );
 
   // Exported permission: 'administer feeds'.
   $permissions['administer feeds'] = array(
     'name' => 'administer feeds',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'feeds',
   );
 
@@ -168,45 +134,35 @@ function open_hourglass_permission_user_default_permissions() {
   // Exported permission: 'administer filters'.
   $permissions['administer filters'] = array(
     'name' => 'administer filters',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'filter',
   );
 
   // Exported permission: 'administer image styles'.
   $permissions['administer image styles'] = array(
     'name' => 'administer image styles',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'image',
   );
 
   // Exported permission: 'administer menu'.
   $permissions['administer menu'] = array(
     'name' => 'administer menu',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'menu',
   );
 
   // Exported permission: 'administer module filter'.
   $permissions['administer module filter'] = array(
     'name' => 'administer module filter',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'module_filter',
   );
 
   // Exported permission: 'administer modules'.
   $permissions['administer modules'] = array(
     'name' => 'administer modules',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'system',
   );
 
@@ -222,36 +178,21 @@ function open_hourglass_permission_user_default_permissions() {
   // Exported permission: 'administer permissions'.
   $permissions['administer permissions'] = array(
     'name' => 'administer permissions',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'user',
-  );
-
-  // Exported permission: 'administer search'.
-  $permissions['administer search'] = array(
-    'name' => 'administer search',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'search',
   );
 
   // Exported permission: 'administer site configuration'.
   $permissions['administer site configuration'] = array(
     'name' => 'administer site configuration',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'system',
   );
 
   // Exported permission: 'administer software updates'.
   $permissions['administer software updates'] = array(
     'name' => 'administer software updates',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'system',
   );
 
@@ -267,9 +208,7 @@ function open_hourglass_permission_user_default_permissions() {
   // Exported permission: 'administer themes'.
   $permissions['administer themes'] = array(
     'name' => 'administer themes',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'system',
   );
 
@@ -285,72 +224,56 @@ function open_hourglass_permission_user_default_permissions() {
   // Exported permission: 'administer views'.
   $permissions['administer views'] = array(
     'name' => 'administer views',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'views',
   );
 
   // Exported permission: 'block IP addresses'.
   $permissions['block IP addresses'] = array(
     'name' => 'block IP addresses',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'system',
   );
 
   // Exported permission: 'bypass node access'.
   $permissions['bypass node access'] = array(
     'name' => 'bypass node access',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'node',
   );
 
   // Exported permission: 'cancel account'.
   $permissions['cancel account'] = array(
     'name' => 'cancel account',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'user',
   );
 
   // Exported permission: 'change own username'.
   $permissions['change own username'] = array(
     'name' => 'change own username',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'user',
   );
 
   // Exported permission: 'clear project_importer feeds'.
   $permissions['clear project_importer feeds'] = array(
     'name' => 'clear project_importer feeds',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'feeds',
   );
 
   // Exported permission: 'clear time_entry_importer feeds'.
   $permissions['clear time_entry_importer feeds'] = array(
     'name' => 'clear time_entry_importer feeds',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'feeds',
   );
 
   // Exported permission: 'clear user_importer feeds'.
   $permissions['clear user_importer feeds'] = array(
     'name' => 'clear user_importer feeds',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'feeds',
   );
 
@@ -497,15 +420,6 @@ function open_hourglass_permission_user_default_permissions() {
     'module' => 'field_permissions',
   );
 
-  // Exported permission: 'edit own comments'.
-  $permissions['edit own comments'] = array(
-    'name' => 'edit own comments',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'comment',
-  );
-
   // Exported permission: 'edit own field_time_entry_date'.
   $permissions['edit own field_time_entry_date'] = array(
     'name' => 'edit own field_time_entry_date',
@@ -567,55 +481,36 @@ function open_hourglass_permission_user_default_permissions() {
   // Exported permission: 'generate features'.
   $permissions['generate features'] = array(
     'name' => 'generate features',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'features',
   );
 
   // Exported permission: 'import project_importer feeds'.
   $permissions['import project_importer feeds'] = array(
     'name' => 'import project_importer feeds',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'feeds',
   );
 
   // Exported permission: 'import time_entry_importer feeds'.
   $permissions['import time_entry_importer feeds'] = array(
     'name' => 'import time_entry_importer feeds',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'feeds',
   );
 
   // Exported permission: 'import user_importer feeds'.
   $permissions['import user_importer feeds'] = array(
     'name' => 'import user_importer feeds',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'feeds',
   );
 
   // Exported permission: 'manage features'.
   $permissions['manage features'] = array(
     'name' => 'manage features',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'features',
-  );
-
-  // Exported permission: 'post comments'.
-  $permissions['post comments'] = array(
-    'name' => 'post comments',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'comment',
   );
 
   // Exported permission: 'revert revisions'.
@@ -628,76 +523,39 @@ function open_hourglass_permission_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'search content'.
-  $permissions['search content'] = array(
-    'name' => 'search content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'search',
-  );
-
   // Exported permission: 'select account cancellation method'.
   $permissions['select account cancellation method'] = array(
     'name' => 'select account cancellation method',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'user',
-  );
-
-  // Exported permission: 'skip comment approval'.
-  $permissions['skip comment approval'] = array(
-    'name' => 'skip comment approval',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'comment',
   );
 
   // Exported permission: 'unlock project_importer feeds'.
   $permissions['unlock project_importer feeds'] = array(
     'name' => 'unlock project_importer feeds',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'feeds',
   );
 
   // Exported permission: 'unlock time_entry_importer feeds'.
   $permissions['unlock time_entry_importer feeds'] = array(
     'name' => 'unlock time_entry_importer feeds',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'feeds',
   );
 
   // Exported permission: 'unlock user_importer feeds'.
   $permissions['unlock user_importer feeds'] = array(
     'name' => 'unlock user_importer feeds',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'feeds',
   );
 
   // Exported permission: 'use PHP for title patterns'.
   $permissions['use PHP for title patterns'] = array(
     'name' => 'use PHP for title patterns',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
+    'roles' => array(),
     'module' => 'auto_nodetitle',
-  );
-
-  // Exported permission: 'use advanced search'.
-  $permissions['use advanced search'] = array(
-    'name' => 'use advanced search',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'search',
   );
 
   // Exported permission: 'view field_time_entry_date'.
@@ -760,7 +618,6 @@ function open_hourglass_permission_user_default_permissions() {
   $permissions['view the administration theme'] = array(
     'name' => 'view the administration theme',
     'roles' => array(
-      'administrator' => 'administrator',
       'authenticated user' => 'authenticated user',
       'project manager' => 'project manager',
     ),

@@ -12,5 +12,5 @@ configure = admin/config/development/jquery_update
 version = "7.x-3.0-rc4"
 core = "7.x"
 project = "jquery_update"
-datestamp = "1416794982"
+datestamp = "1416803311"
 

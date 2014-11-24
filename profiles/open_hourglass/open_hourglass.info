@@ -7,7 +7,7 @@ exclusive = 1
 
 dependencies[] = block
 dependencies[] = color
-dependencies[] = comment
+;dependencies[] = comment
 ;dependencies[] = contextual
 ;dependencies[] = dashboard
 dependencies[] = help
@@ -19,7 +19,7 @@ dependencies[] = options
 ;dependencies[] = path
 dependencies[] = taxonomy
 dependencies[] = dblog
-dependencies[] = search
+;dependencies[] = search
 ;dependencies[] = shortcut
 ;dependencies[] = toolbar
 dependencies[] = overlay
