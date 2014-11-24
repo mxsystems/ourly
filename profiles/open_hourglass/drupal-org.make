@@ -75,17 +75,17 @@ projects[libraries][version] = "2.2"
 projects[token][subdir] = "contrib"
 projects[token][version] = "1.5"
 
-projects[devel][subdir] = "devel"
-projects[devel][version] = "1.5"
+;projects[devel][subdir] = "devel"
+;projects[devel][version] = "1.5"
 
 projects[diff][subdir] = "devel"
 projects[diff][version] = "3.2"
 
-projects[simplehtmldom][subdir] = "devel"
-projects[simplehtmldom][version] = "1.12"
+;projects[simplehtmldom][subdir] = "devel"
+;projects[simplehtmldom][version] = "1.12"
 
-projects[devel_themer][subdir] = "devel"
-projects[devel_themer][version] = "1.x-dev"
+;projects[devel_themer][subdir] = "devel"
+;projects[devel_themer][version] = "1.x-dev"
 
 projects[email][subdir] = "contrib"
 projects[email][version] = "1.3"

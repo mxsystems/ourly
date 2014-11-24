@@ -60,15 +60,6 @@ function open_hourglass_permission_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'access devel information'.
-  $permissions['access devel information'] = array(
-    'name' => 'access devel information',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'devel',
-  );
-
   // Exported permission: 'access overlay'.
   $permissions['access overlay'] = array(
     'name' => 'access overlay',
@@ -573,15 +564,6 @@ function open_hourglass_permission_user_default_permissions() {
     'module' => 'taxonomy',
   );
 
-  // Exported permission: 'execute php code'.
-  $permissions['execute php code'] = array(
-    'name' => 'execute php code',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'devel',
-  );
-
   // Exported permission: 'generate features'.
   $permissions['generate features'] = array(
     'name' => 'generate features',
@@ -671,15 +653,6 @@ function open_hourglass_permission_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'comment',
-  );
-
-  // Exported permission: 'switch users'.
-  $permissions['switch users'] = array(
-    'name' => 'switch users',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'devel',
   );
 
   // Exported permission: 'unlock project_importer feeds'.
