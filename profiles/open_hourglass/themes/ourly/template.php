@@ -128,6 +128,21 @@ function ourly_preprocess_link(&$vars) {
 }
 
 /**
+ * Preprocess user login page
+ * @param $vars
+ */
+function ourly_preprocess_page(&$vars) {
+  // @todo: Maybe preprocess only user login page?
+  if (!isset($vars['page']['content']['system_main']['#id'])) {
+    return;
+  }
+  $page_id = $vars['page']['content']['system_main']['#id'];
+  if ($page_id === 'user-login') {
+    $vars['is_demo'] = variable_get('ourly_is_demo', 0);
+  }
+}
+
+/**
  * Override our theming function for box
  * @param $variables
  * @return string

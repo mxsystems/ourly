@@ -74,6 +74,17 @@ function open_hourglass_form_install_configure_form_alter(&$form, $form_state) {
     '#default_value' => '1',
   );
 
+  if (drupal_is_cli()) {
+    $form['additional_settings']['ourly_is_demo'] = array(
+      '#title' => st('Demo users'),
+      '#type' => 'radios',
+      '#options' => $options,
+      '#default_value' => 0,
+    );
+
+    array_unshift($form['#submit'], 'open_hourglass_is_demo');
+  }
+
   if (!drupal_is_cli()) {
     // Make a "copy" of the original name and pass form fields.
     $form['admin_account']['setup_account']['account']['name'] = $form['admin_account']['account']['name'];
@@ -121,4 +132,13 @@ function open_hourglass_custom_setting(&$form, &$form_state) {
  */
 function open_hourglass_demo_content(&$form, &$form_state) {
   variable_set('open_hourglass_demo_content', $form_state['values']['install_demo_content']);
+}
+
+/**
+ * Submission callback; only for setting site as demo
+ * @param $form
+ * @param $form_state
+ */
+function open_hourglass_is_demo(&$form, &$form_state) {
+  variable_set('ourly_is_demo', $form_state['values']['ourly_is_demo']);
 }

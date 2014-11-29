@@ -99,10 +99,17 @@
     </div><!-- /.navbar-collapse -->
   </div> <!-- /.container -->
 </nav>
+<?php if ($is_demo): ?>
+<div class="alert alert-warning alert-dismissable">Login with the following demo username/passwords: <ul>
+    <li><strong>demo_user/demo_user</strong></li>
+    <li><strong>demo_pm/demo_pm</strong></li>
+    <li><strong>demo_admin/demo_admin</strong></li>
+</ul></div>
+<?php endif; ?>
 <div class="account-container stacked">
   <div class="content clearfix">
       <h1>Login</h1>
-      <p>Login with your username and password below:</p>
+    <p>Login with your username and password below:</p>
       <?php print render($page['content']); ?>
   </div>
 </div>
