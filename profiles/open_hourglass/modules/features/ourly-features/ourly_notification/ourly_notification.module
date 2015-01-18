@@ -1,0 +1,196 @@
+<?php
+/**
+ * @file
+ * Drupal needs this blank file.
+ */
+
+/**
+ * Implements hook_rules_category_info() on behalf of the node module.
+ */
+function ourly_notification_rules_category_info() {
+  return array(
+    'ourly' => array(
+      'label' => t('Our.ly'),
+      'equals group' => t('Our.ly'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_rules_action_info
+ */
+function ourly_notification_rules_action_info() {
+  $actions = array(
+    'ourly_notification_setting_reminder_date' => array(
+      'label' => t('Setting Our.ly last reminder date'),
+      'group' => t('Our.ly'),
+    ),
+  );
+  return $actions;
+}
+
+/**
+ * Custom action callback.
+ */
+function ourly_notification_setting_reminder_date() {
+  variable_set('ourly_reminder_last_day', date('Y-m-d H:i:s', REQUEST_TIME));
+}
+
+/**
+ * Implements hook_rules_condition_info.
+ */
+function ourly_notification_rules_condition_info() {
+  $conditions = array(
+    'ourly_notification_email_reminder' => array(
+      'label' => t('Email notification toggle on'),
+      'group' => t('Our.ly'),
+    ),
+    'ourly_notification_check_last_reminder_day' => array(
+      'label' => t('If 24 hours has passed last reminder day'),
+      'group' => t('Our.ly'),
+    ),
+    'ourly_notification_notification_hour' => array(
+      'label' => ('Hour of the day'),
+      'group' => t('Our.ly'),
+    ),
+    'ourly_notification_weekend' => array(
+      'label' => ('Excluding Weekend'),
+      'group' => t('Our.ly'),
+    ),
+  );
+  return $conditions;
+}
+
+/**
+ * Custom condition callback.
+ */
+function ourly_notification_notification_hour() {
+  $hour = variable_get('ourly_config_email_hour', 16);
+  if (date('G', REQUEST_TIME) >= $hour) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Custom condition callback.
+ */
+function ourly_notification_weekend() {
+  $exclude_weekend = variable_get('ourly_config_email_weekend', 1);
+  if ((bool) $exclude_weekend) {
+    // if the exclusion is set.
+    $current_day_of_week = date('N', REQUEST_TIME);
+    if ($current_day_of_week == 6 || $current_day_of_week == 7) {
+      return FALSE;
+    }
+    return TRUE;
+  }
+  // Allow email to be send any time.
+  return TRUE;
+}
+
+/**
+ * Custom condition callback.
+ */
+function ourly_notification_check_last_reminder_day() {
+  $last_reminder_date = variable_get('ourly_reminder_last_day', date('Y-m-d H:i:s', REQUEST_TIME));
+  // Check if now is 24 hours past last reminder date
+  if (REQUEST_TIME - strtotime($last_reminder_date) >= 86400) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Custom condition callback.
+ */
+function ourly_notification_email_reminder() {
+  $email_notification_toggle = variable_get('ourly_config_email_toggle', 0);
+  if ((bool) $email_notification_toggle) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_rules_event_info
+ */
+function ourly_notification_rules_event_info() {
+  return array(
+    'ourly_notification_cob' => array(
+      'category' => 'ourly',
+      'label' => t('Daily Reminder set time'),
+      'module' => 'ourly_notification',
+      'variables' => array(
+        'account' => array(
+          'type' => 'list<user>',
+          'label' => t('Users that needs to be reminded'),
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_cron
+ */
+function ourly_notification_cron() {
+  // For example: When it is set to 4 pm in the afternoon from Monday to Friday.
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'user')
+    ->propertyCondition('status', 1);
+  $results = $query->execute();
+  if (empty($results)) {
+    return;
+  }
+  $user_list = array_keys($results['user']);
+  foreach ($user_list as $uid) {
+    $accounts[] = user_load($uid);
+  }
+  rules_invoke_event('ourly_notification_cob', $accounts);
+}
+
+/**
+ * Implements hook_ourly_config_form.
+ */
+function ourly_notification_ourly_config_form() {
+  $form['notification'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Notification Settings'),
+  );
+
+  $form['notification']['ourly_config_email_toggle'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enabling email notification'),
+    '#description' => t('Enable daily email reminder and others to be sent.'),
+    '#default_value' => variable_get('ourly_config_email_toggle', 0),
+  );
+
+  $form['notification']['ourly_config_email_weekend'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Exclude weekend'),
+    '#description' => t('Check to disable reminder email to be sent on weekend.'),
+    '#default_value' => variable_get('ourly_config_email_weekend', 1),
+  );
+
+  $options = array();
+  for ($i = 0; $i < 24; $i++) {
+    if ($i < 12) {
+      $options[$i] = $i . ' am';
+    } elseif ($i == 12) {
+      $options[$i] = $i . ' pm';
+    }
+    else {
+      $options[$i] = ($i - 12) . ' pm';
+    }
+  }
+  $form['notification']['ourly_config_email_hour'] = array(
+    '#type' => 'select',
+    '#title' => t('Send Daily Reminder after'),
+    '#description' => t('Select the hour of the day to send reminder emails.'),
+    '#options' => $options,
+    '#default_value' => variable_get('ourly_config_email_hour', 16),
+  );
+
+  return $form;
+}

@@ -9,6 +9,43 @@ include_once 'open_hourglass_config.features.inc';
 // @todo: we are putting field settings image field manually to a FID, we need to be able to find a way to update the field settings
 
 /**
+ * Implements hook_menu.
+ */
+function open_hourglass_config_menu() {
+  $items['admin/config/system/ourly'] = array(
+    'title' => 'Our.ly Configuration',
+    'position' => 'right',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ourly_config_settings'),
+    'access arguments' => array('administer ourly'),
+    'description' => 'Allow various site configuration settings',
+    'file' => 'open_hourglass_config.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_theme.
+ */
+function open_hourglass_config_theme() {
+  return array(
+    'ourly_settings_menu' => array(),
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function open_hourglass_config_permission() {
+  return array(
+    'administer ourly' => array(
+      'title' => t('Administer ourly'),
+      'description' => t('Perform configuration options for Our.ly distribution'))
+  );
+}
+
+/**
  * Implements hook_menu_alter
  */
 function open_hourglass_config_menu_alter(&$items) {
@@ -23,6 +60,57 @@ function open_hourglass_config_menu_alter(&$items) {
   $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/add']['title callback'] = 'open_hourglass_term_add_title';
   $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/add']['title arguments'] = array(3);
 
+}
+
+/**
+ * Preprocess user login page
+ * @param $vars
+ */
+function open_hourglass_config_preprocess_page(&$vars) {
+  $vars['settings_nav'] = theme('ourly_settings_menu');
+}
+
+/**
+ * Implements hook_user_presave
+ * @param $edit
+ * @param $account
+ * @param $category
+ */
+function open_hourglass_config_user_presave(&$edit, $account, $category) {
+  if (array_key_exists('field_user_name', $edit)) {
+    $edit['data']['name'] = $edit['field_user_name'];
+  }
+}
+
+/**
+ * Implements hook_node_presave
+ * @param $node
+ */
+function open_hourglass_config_node_presave($node) {
+  if ($node->type !== 'project') {
+    return;
+  }
+
+  $query = new EntityFieldQuery();
+
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project')
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->propertyCondition('promote', 1);
+
+  $result = $query->execute();
+
+  if (empty($result)) {
+    return;
+  }
+  foreach ($result['node'] as $_node) {
+    if($_node->nid == $node->nid) {
+      continue;
+    }
+    $nodeItem = node_load($_node->nid);
+    $nodeItem->promote = 0;
+    node_save($nodeItem);
+  }
 }
 
 /**
@@ -170,4 +258,30 @@ function open_hourglass_config_save_done($form, &$form_state) {
 function open_hourglass_config_save_new($form, &$form_state) {
   // Forcing redirect.
   drupal_goto('node/add/time-entry');
+}
+
+/**
+ * Theming settings menu callback.
+ * @return string
+ */
+function theme_ourly_settings_menu() {
+  if (!user_access('administer ourly')) {
+    return;
+  }
+
+  $sub_items = array(
+    l('Our.ly Config', 'admin/config/system/ourly'),
+  );
+  $sub_menu = theme('item_list', array('type' => 'ul', 'attributes' => array('class' => array('dropdown-menu'),), 'items' => $sub_items));
+  $sub_menu = strip_tags($sub_menu, '<ul><li><a>');
+
+  $menu = '<li class="dropdown">
+    <a href="javscript:;" class="dropdown-toggle" data-toggle="dropdown">
+    <i class="icon-cog"></i>
+    settings
+    <b class="caret"></b>
+    </a>' . $sub_menu . '
+    </li>';
+
+  return $menu;
 }

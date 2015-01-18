@@ -172,15 +172,15 @@ function open_hourglass_config_field_default_field_instances() {
     'label' => 'Project Description',
     'required' => 0,
     'settings' => array(
-      'display_summary' => 1,
-      'text_processing' => 1,
+      'display_summary' => 0,
+      'text_processing' => 0,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
       'active' => 1,
       'module' => 'text',
       'settings' => array(
-        'rows' => 20,
+        'rows' => 5,
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',

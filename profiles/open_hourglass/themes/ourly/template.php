@@ -34,10 +34,17 @@ function ourly_menu_tree(&$vars) {
  */
 function ourly_menu_tree__secondary(&$vars) {
   global $user;
+
+  if (!empty($user->data['name'][LANGUAGE_NONE])) {
+    $real_name = $user->data['name'][LANGUAGE_NONE][0]['given'] . ' ' . $user->data['name'][LANGUAGE_NONE][0]['family'];
+  } else {
+    $real_name = $user->name;
+  }
+
   return '<li class="dropdown">
     <a href="javscript:;" class="dropdown-toggle" data-toggle="dropdown">
       <i class="icon-user"></i>
-      ' . $user->name . '
+      ' . $real_name . '
       <b class="caret"></b>
     </a><ul class="dropdown-menu">
 ' . $vars['tree'] . '</ul></li>';
@@ -53,6 +60,9 @@ function ourly_menu_link__main_menu($vars) {
   $sub_menu = '';
 
   if (in_array('active-trail', $element['#attributes']['class'])) {
+    $element['#attributes']['class'][] = 'active';
+  }
+  if (drupal_is_front_page() && in_array('first', $element['#attributes']['class'])) {
     $element['#attributes']['class'][] = 'active';
   }
 

@@ -1,0 +1,63 @@
+#time_edit label{
+    display: block;
+}
+#time_edit div,
+#time_edit fieldset .fieldset-wrapper,
+#time_edit fieldset #time_edit,
+#time_edit .container-inline-date .date-padding {
+    border: none;
+    padding: inherit;
+}
+
+#time_edit div fieldset .fieldset-wrapper{
+    padding: 0;
+}
+
+#time_edit div #field-time-entry-date-add-more-wrapper fieldset.form-wrapper{
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+div .node-form #edit-actions, #commerce-product-ui-product-form #edit-actions {
+    background: none;
+    padding: 15px 0 0 0;
+}
+#time_edit div .form-item .form-type-textfield .form-item-field-time-entry-date-und-0-value-date,
+#time_edit div #edit-field-time-entry-date-und-0-value .date-padding,
+#time_edit div .form-item, .form-item .form-item,
+#time_edit .container-inline-date .form-item .form-item{
+    margin-bottom: initial;
+    padding-bottom: 0;
+}
+
+#time_edit legend,
+#time_edit fieldset .fieldset-legend {
+    visibility: collapse;
+    display: none;
+}
+
+
+#project_edit div .description {
+    visibility: hidden;
+    display: none;
+}
+
+#project_edit #author_info h2{
+    visibility: hidden;
+    display: none;
+}
+input #edit_name .form-autocomplete {
+    padding: 5px;
+}
+
+.node-form-author > .fieldset-wrapper {
+    width: 50%;
+}
+
+/**
+* Time entry edit form
+*/
+#time-form-pub-options {
+    display:none;
+}

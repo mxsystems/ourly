@@ -62,7 +62,7 @@ dependencies[] = feeds
 dependencies[] = entity
 dependencies[] = libraries
 ;dependencies[] = devel
-dependencies[] = diff
+;dependencies[] = diff
 dependencies[] = context
 ;dependencies[] = context_ui
 dependencies[] = entityreference
@@ -70,6 +70,12 @@ dependencies[] = auto_nodetitle
 dependencies[] = charts
 dependencies[] = charts_google
 dependencies[] = field_permissions
+dependencies[] = rules
+dependencies[] = rules_admin
+dependencies[] = rules_scheduler
+;dependencies[] = rules_ui
+;dependencies[] = smtp
+
 
 ; Fields dependencides
 dependencies[] = link

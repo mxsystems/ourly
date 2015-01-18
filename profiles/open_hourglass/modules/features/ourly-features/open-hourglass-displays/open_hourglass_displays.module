@@ -49,26 +49,37 @@ function open_hourglass_displays_form_views_exposed_form_alter(&$form, &$form_st
 }
 
 /**
- * Implements hook_view_pre_render
- * @param $view
+ * Implements hook_view_pre_render.
  */
 function open_hourglass_displays_views_pre_render(&$view) {
-  if ($view->name != 'weekly_time_entry_overview') {
-    return;
-  }
-  $results = $view->result;
-  $week = date('W');
-  $year = date('Y');
-  for($day=1; $day<=7; $day++)
-  {
-    $days[] = date('l (m/d/Y)', strtotime($year."W".$week.$day));
-  }
-  foreach ($results as $key => $result) {
-    if (!in_array($result->field_data_field_time_entry_date_field_time_entry_date_value, $days)) {
-      unset($results[$key]);
+  // Manipulate the data for burn chart.
+  if ($view->name == 'project_time_overview') {
+    $results = array_reverse($view->result);
+    if ($view->current_display == 'project_burn_pane') {
+      $total = 0;
+
+      if (empty($view->args)) {
+        return;
+      }
+      $project = node_load($view->args[0]);
+      if ($project->type != 'project') {
+        return;
+      }
+      if (!empty($project->field_project_budgeted_hours)) {
+        $lang = $project->language;
+        $total = $project->field_project_budgeted_hours[$lang][0]['value'];
+      }
+      if ($total === 0) {
+        return;
+      }
+      foreach ($results as $key => $month) {
+        $total = $total - $month->field_data_field_time_entry_time_spent_field_time_entry_time;
+        $results[$key]->field_data_field_time_entry_time_spent_field_time_entry_time = $total;
+        $results[$key]->field_field_time_entry_time_spent[0]['rendered'] = $total;
+      }
+      $view->result = $results;
     }
   }
-  $view->result = $results;
 }
 
 /**
@@ -91,65 +102,82 @@ function _open_hourglass_displays_alter_views_query($view) {
   switch ($view->name) {
     // rewrite the query for weekly time entry to properly group time entry by day
     case 'weekly_time_entry_overview':
-      $new_query = db_select('node')
-        ->condition('node.status', 1, '=')
-        ->condition('node.type', array('time_entry'), 'IN');
-      $new_query->leftJoin('users', 'users_node', 'node.uid = users_node.uid');
-      $new_query->leftJoin('field_data_field_time_entry_project', 'field_data_field_time_entry_project', 'field_data_field_time_entry_project.entity_id = node.nid');
-      $new_query->leftJoin('field_data_field_time_entry_date', 'field_data_field_time_entry_date', 'field_data_field_time_entry_date.entity_id = node.nid');
-      $new_query->leftJoin('field_data_field_time_entry_time_spent', 'field_data_field_time_entry_time_spent', 'field_data_field_time_entry_time_spent.entity_id = node.nid');
-      $new_query->addExpression("DATE_FORMAT(field_data_field_time_entry_date.field_time_entry_date_value, '%W (%m/%d/%Y)')", "field_data_field_time_entry_date_field_time_entry_date_value");
-      $new_query->addExpression("MIN(node.nid)", "nid");
-      $new_query->addExpression("'node'", "field_data_field_time_entry_date_node_entity_type");
-      $new_query->addExpression("'node'", "field_data_field_time_entry_time_spent_node_entity_type");
-      $new_query->addExpression("SUM(field_data_field_time_entry_time_spent.field_time_entry_time_spent_value)", "field_data_field_time_entry_time_spent_field_time_entry_time");
-      $new_query->groupBy('field_data_field_time_entry_date_node_entity_type');
-      $new_query->groupBy('field_data_field_time_entry_date_field_time_entry_date_value');
-      $new_query->groupBy('field_data_field_time_entry_time_spent_node_entity_type');
-      $new_query->orderBy('field_data_field_time_entry_date.field_time_entry_date_value', 'DESC');
-      // build back exposed filters
-      if (isset($view->exposed_raw_input['uid'])) {
-        if($view->exposed_raw_input['uid'] != '') {
-          $uid = $view->filter['uid']->value[0];
-          $new_query->condition('users_node.uid', array($uid), 'IN');
+      if ($view->current_display == 'weekly_total') {
+        $new_query = $view->build_info['query'];
+        $new_query->leftJoin('field_data_field_time_entry_date', 'field_data_field_time_entry_date', 'field_data_field_time_entry_date.entity_id = node.nid');
+        $new_query->where('YEARWEEK(field_data_field_time_entry_date.field_time_entry_date_value, 1) = YEARWEEK(CURDATE(), 1)');
+      } else {
+        $new_query = db_select('node')
+          ->condition('node.status', 1, '=')
+          ->condition('node.type', array('time_entry'), 'IN');
+        $new_query->leftJoin('users', 'users_node', 'node.uid = users_node.uid');
+        $new_query->leftJoin('field_data_field_time_entry_project', 'field_data_field_time_entry_project', 'field_data_field_time_entry_project.entity_id = node.nid');
+        $new_query->leftJoin('field_data_field_time_entry_date', 'field_data_field_time_entry_date', 'field_data_field_time_entry_date.entity_id = node.nid');
+        $new_query->leftJoin('field_data_field_time_entry_time_spent', 'field_data_field_time_entry_time_spent', 'field_data_field_time_entry_time_spent.entity_id = node.nid');
+        $new_query->addExpression("DATE_FORMAT(field_data_field_time_entry_date.field_time_entry_date_value, '%W (%m/%d/%Y)')", "field_data_field_time_entry_date_field_time_entry_date_value");
+        $new_query->addExpression("MIN(node.nid)", "nid");
+        $new_query->addExpression("'node'", "field_data_field_time_entry_date_node_entity_type");
+        $new_query->addExpression("'node'", "field_data_field_time_entry_time_spent_node_entity_type");
+        $new_query->addExpression("SUM(field_data_field_time_entry_time_spent.field_time_entry_time_spent_value)", "field_data_field_time_entry_time_spent_field_time_entry_time");
+        $new_query->groupBy('field_data_field_time_entry_date_node_entity_type');
+        $new_query->groupBy('field_data_field_time_entry_date_field_time_entry_date_value');
+        $new_query->groupBy('field_data_field_time_entry_time_spent_node_entity_type');
+        $new_query->orderBy('field_data_field_time_entry_date.field_time_entry_date_value', 'DESC');
+        $new_query->where('YEARWEEK(field_data_field_time_entry_date.field_time_entry_date_value, 1) = YEARWEEK(CURDATE(), 1)');
+        // build back exposed filters.
+        if (isset($view->exposed_raw_input['uid'])) {
+          if($view->exposed_raw_input['uid'] != '') {
+            $uid = $view->filter['uid']->value[0];
+            $new_query->condition('users_node.uid', array($uid), 'IN');
+          }
         }
-      }
-      if (isset($view->exposed_raw_input['project'])) {
-        if ($view->exposed_raw_input['project'] != '') {
-          $project = $view->filter['field_time_entry_project_target_id']->value['value'];
-          $new_query->condition('field_data_field_time_entry_project.field_time_entry_project_target_id', $project);
+        if (isset($view->exposed_raw_input['project'])) {
+          if ($view->exposed_raw_input['project'] != '') {
+            $project = $view->filter['field_time_entry_project_target_id']->value['value'];
+            $new_query->condition('field_data_field_time_entry_project.field_time_entry_project_target_id', $project);
+          }
         }
       }
     break;
     // rewrite the query for monthly time entry view to properly group time entry by month
     case 'monthly_time_entry_overview':
-      $new_query = db_select('node')
-        ->condition('node.status', 1, '=')
-        ->condition('node.type', array('time_entry'), 'IN');
-      $new_query->leftJoin('users', 'users_node', 'node.uid = users_node.uid');
-      $new_query->leftJoin('field_data_field_time_entry_project', 'field_data_field_time_entry_project', 'field_data_field_time_entry_project.entity_id = node.nid');
-      $new_query->leftJoin('field_data_field_time_entry_date','field_data_field_time_entry_date','field_data_field_time_entry_date.entity_id = node.nid');
-      $new_query->leftJoin('field_data_field_time_entry_time_spent', 'field_data_field_time_entry_time_spent', 'field_data_field_time_entry_time_spent.entity_id = node.nid');
-      $new_query->addExpression("DATE_FORMAT(field_data_field_time_entry_date.field_time_entry_date_value, '%M (%Y)')", "field_data_field_time_entry_date_field_time_entry_date_value");
-      $new_query->addExpression("MIN(node.nid)", "nid");
-      $new_query->addExpression("'node'", 'field_data_field_time_entry_date_node_entity_type');
-      $new_query->addExpression("'node'", 'field_data_field_time_entry_time_spent_node_entity_type');
-      $new_query->addExpression("SUM(field_data_field_time_entry_time_spent.field_time_entry_time_spent_value)", "field_data_field_time_entry_time_spent_field_time_entry_time");
-      $new_query->groupBy('field_data_field_time_entry_date_node_entity_type');
-      $new_query->groupBy('field_data_field_time_entry_date_field_time_entry_date_value');
-      $new_query->groupBy('field_data_field_time_entry_time_spent_node_entity_type');
-      $new_query->orderBy('field_data_field_time_entry_date.field_time_entry_date_value', 'DESC');
-      // build back exposed filters
-      if (isset($view->exposed_raw_input['uid'])) {
-        if($view->exposed_raw_input['uid'] != '') {
-          $uid = $view->filter['uid']->value[0];
-          $new_query->condition('users_node.uid', array($uid), 'IN');
+    case 'project_time_overview':
+      if ($view->name == 'monthly_time_entry_overview'
+        || $view->current_display == 'project_burn_pane'
+        || $view->current_display == 'project_hour_pane')  {
+        $new_query = db_select('node')
+          ->condition('node.status', 1, '=')
+          ->condition('node.type', array('time_entry'), 'IN');
+        $new_query->leftJoin('users', 'users_node', 'node.uid = users_node.uid');
+        $new_query->leftJoin('field_data_field_time_entry_project', 'field_data_field_time_entry_project', 'field_data_field_time_entry_project.entity_id = node.nid');
+        $new_query->leftJoin('field_data_field_time_entry_date','field_data_field_time_entry_date','field_data_field_time_entry_date.entity_id = node.nid');
+        $new_query->leftJoin('field_data_field_time_entry_time_spent', 'field_data_field_time_entry_time_spent', 'field_data_field_time_entry_time_spent.entity_id = node.nid');
+        $new_query->addExpression("DATE_FORMAT(field_data_field_time_entry_date.field_time_entry_date_value, '%M (%Y)')", "field_data_field_time_entry_date_field_time_entry_date_value");
+        $new_query->addExpression("MIN(node.nid)", "nid");
+        $new_query->addExpression("'node'", 'field_data_field_time_entry_date_node_entity_type');
+        $new_query->addExpression("'node'", 'field_data_field_time_entry_time_spent_node_entity_type');
+        $new_query->addExpression("SUM(field_data_field_time_entry_time_spent.field_time_entry_time_spent_value)", "field_data_field_time_entry_time_spent_field_time_entry_time");
+        $new_query->groupBy('field_data_field_time_entry_date_node_entity_type');
+        $new_query->groupBy('field_data_field_time_entry_date_field_time_entry_date_value');
+        $new_query->groupBy('field_data_field_time_entry_time_spent_node_entity_type');
+        $new_query->orderBy('field_data_field_time_entry_date.field_time_entry_date_value', 'DESC');
+        // build back exposed filters
+        if (isset($view->exposed_raw_input['uid'])) {
+          if($view->exposed_raw_input['uid'] != '') {
+            $uid = $view->filter['uid']->value[0];
+            $new_query->condition('users_node.uid', array($uid), 'IN');
+          }
         }
-      }
-      if (isset($view->exposed_raw_input['project'])) {
-        if ($view->exposed_raw_input['project'] != '') {
-          $project = $view->filter['field_time_entry_project_target_id']->value['value'];
-          $new_query->condition('field_data_field_time_entry_project.field_time_entry_project_target_id', $project);
+        if (isset($view->exposed_raw_input['project'])) {
+          if ($view->exposed_raw_input['project'] != '') {
+            $project = $view->filter['field_time_entry_project_target_id']->value['value'];
+            $new_query->condition('field_data_field_time_entry_project.field_time_entry_project_target_id', $project);
+          }
+        }
+        //Getting contextual filter from project id. Specifically for project_burn_pane
+        if (!empty($view->args)) {
+          $project_nid = $view->args[0];
+          $new_query->condition('field_data_field_time_entry_project.field_time_entry_project_target_id', $project_nid);
         }
       }
     break;
@@ -168,5 +196,16 @@ function open_hourglass_displays_preprocess_views_view(&$vars) {
     drupal_add_css($path . '/progress.css');
     drupal_add_css($path . '/open_hourglass_displays.css');
     drupal_add_js($path . '/open_hourglass_displays.js');
+  }
+}
+/**
+ * Implements hook node edit_view
+ * @param &$form, &$form_state, $form_id
+ */
+function open_hourglass_displays_form_alter(&$form, &$form_state, $form_id) {
+  $contentType = substr($form_id, 0, stripos($form_id, '_'));
+  if ($contentType == 'project' || $contentType == 'time') {
+    $path = drupal_get_path('module', 'open_hourglass_displays');
+    drupal_add_css($path . '/node_form.css');
   }
 }

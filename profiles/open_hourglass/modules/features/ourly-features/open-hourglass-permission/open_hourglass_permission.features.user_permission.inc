@@ -54,6 +54,8 @@ function open_hourglass_permission_user_default_permissions() {
     'name' => 'access overlay',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+      'project manager' => 'project manager',
     ),
     'module' => 'overlay',
   );
@@ -173,6 +175,15 @@ function open_hourglass_permission_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'node',
+  );
+
+  // Exported permission: 'administer ourly'.
+  $permissions['administer ourly'] = array(
+    'name' => 'administer ourly',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'open_hourglass_config',
   );
 
   // Exported permission: 'administer permissions'.
@@ -556,6 +567,25 @@ function open_hourglass_permission_user_default_permissions() {
     'name' => 'use PHP for title patterns',
     'roles' => array(),
     'module' => 'auto_nodetitle',
+  );
+
+  // Exported permission: 'use text format filtered_html'.
+  $permissions['use text format filtered_html'] = array(
+    'name' => 'use text format filtered_html',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'project manager' => 'project manager',
+    ),
+    'module' => 'filter',
+  );
+
+  // Exported permission: 'use text format full_html'.
+  $permissions['use text format full_html'] = array(
+    'name' => 'use text format full_html',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'filter',
   );
 
   // Exported permission: 'view field_time_entry_date'.

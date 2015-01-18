@@ -34,7 +34,7 @@ projects[panels][subdir] = "contrib"
 projects[panels][version] = "3.4"
 
 projects[features][subdir] = "contrib"
-projects[features][version] = "2.2"
+projects[features][version] = "2.3"
 
 projects[module_filter][subdir] = "contrib"
 projects[module_filter][version] = "1.8"
@@ -75,8 +75,8 @@ projects[libraries][version] = "2.2"
 projects[token][subdir] = "contrib"
 projects[token][version] = "1.5"
 
-;projects[devel][subdir] = "devel"
-;projects[devel][version] = "1.5"
+projects[devel][subdir] = "devel"
+projects[devel][version] = "1.5"
 
 projects[diff][subdir] = "devel"
 projects[diff][version] = "3.2"
@@ -91,7 +91,7 @@ projects[email][subdir] = "contrib"
 projects[email][version] = "1.3"
 
 projects[context][subdir] = "contrib"
-projects[context][version] = "3.3"
+projects[context][version] = "3.6"
 
 projects[date][subdir] = "contrib"
 projects[date][version] = "2.8"
@@ -113,6 +113,12 @@ projects[feeds][version] = "2.0-alpha8"
 
 projects[charts][subdir] = "contrib"
 projects[charts][version] = "2.0-rc1"
+
+projects[rules][subdir] = "contrib"
+projects[rules][version] = "2.8"
+
+projects[smtp][subdir] = "contrib"
+projects[smtp][version] = "1.2"
 
 ; Feature modules
 projects[ourly-features][type] = "module"

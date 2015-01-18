@@ -1,0 +1,15 @@
+name = Ourly Export
+description = Export all data from the system
+core = 7.x
+package = our.ly
+version = 7.x-1.0
+project = ourly_export
+dependencies[] = open_hourglass_config
+dependencies[] = views
+dependencies[] = views_data_export
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[views_view][] = export_projects
+features[views_view][] = export_time
+features[views_view][] = export_users
+features_exclude[dependencies][ctools] = ctools

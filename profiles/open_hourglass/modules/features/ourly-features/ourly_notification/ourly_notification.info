@@ -1,0 +1,15 @@
+name = Ourly Notification
+description = Provide all notification related functions for Our.ly
+core = 7.x
+package = Open Hourglass
+version = 7.x-1.0
+project = ourly_notification
+dependencies[] = entity
+dependencies[] = open_hourglass_config
+dependencies[] = ourly_notification
+dependencies[] = rules
+dependencies[] = rules_scheduler
+features[features_api][] = api:2
+features[rules_config][] = rules_daily_reminder
+features[rules_config][] = rules_daily_reminder_email
+mtime = 1418606461

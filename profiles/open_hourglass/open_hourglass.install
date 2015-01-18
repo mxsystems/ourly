@@ -16,10 +16,11 @@ define('DRUPAL_ADMINISTRATOR_RID', 3);
 function open_hourglass_install() {
 	
   // Enable the admin theme.
-  theme_enable(array('bootstrap', 'ourly', 'shiny'));
+  theme_enable(array('bootstrap', 'ourly', 'shiny', 'ourly_install'));
   variable_set('admin_theme', 'shiny');
   variable_set('node_admin_theme', '1');
   variable_set('theme_default', 'ourly');
+  variable_set('maintenance_theme', 'ourly_install');
 
   // Enable default permissions for system roles.
   user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content'));
@@ -190,7 +191,10 @@ function open_hourglass_install_finished(&$install_state) {
   variable_set('install_profile', drupal_get_profile());
   variable_set('install_task', 'done');
 
-  // Grant user 1 administrator role
+	// Setting last notification date.
+	variable_set('ourly_reminder_last_day', date('Y-m-d', strtotime('-2 days')));
+
+  // Grant user 1 administrator role.
   $admin_role = user_role_load(DRUPAL_ADMINISTRATOR_RID);
   if (!empty($admin_role)) {
     $account = user_load(1);
@@ -264,6 +268,7 @@ function open_hourglass_install_features() {
     'Help' => 'open_hourglass_help',
     'Menu' => 'open_hourglass_menu',
     'Permissions' => 'open_hourglass_permission',
+    'Notification' => 'ourly_notification',
   );
   foreach ($features as $name => $module) {
     $operations[] = array(
@@ -309,6 +314,12 @@ function open_hourglass_install_config() {
 
   // Enable the user edit panel.
   $operations[] = array('_open_hourglass_page_enable', array('user_edit', FALSE, array(t('Enabling page templates'))));
+  
+  // Enable the node edit panel
+  $operations[] = array('_open_hourglass_page_enable', array('node_edit', FALSE, array(t('Enabling admin templates'))));
+
+  // Enable the node edit panel
+  $operations[] = array('_open_hourglass_page_enable', array('node_view', FALSE, array(t('Enabling panel node view'))));
 
   $batch = array(
     'title' => t('Configuring additional features'),
@@ -394,9 +405,25 @@ function _open_hourglass_demo_contents($operation, &$context) {
     'Level 2 Expansion' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse faucibus porttitor metus quis rutrum. Nullam ornare ornare sapien, sit amet porta tortor aliquam id. Vestibulum dignissim leo finibus nulla suscipit vulputate. Donec quis orci dapibus, sollicitudin lorem eget, tincidunt orci. Maecenas elit dui, faucibus eget dapibus dictum, sagittis vel urna. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis quis tellus ac orci molestie pretium sit amet at ex. Praesent pulvinar vitae dui egestas porta. Integer euismod egestas turpis id sagittis. Maecenas commodo vel enim eget vestibulum. Integer convallis nisi non feugiat tincidunt.',
     'Seashore Support' => 'Donec ut fermentum turpis, vitae tincidunt lectus. Aliquam tempor ligula vitae nisi vulputate euismod. Cras venenatis nibh quis neque lobortis ullamcorper. Nulla ante purus, pellentesque tincidunt tincidunt ac, porta vel eros. Nunc ac tellus a neque aliquet vehicula et sed sem. Donec cursus nec nunc at aliquet. Sed congue nibh eu nunc dignissim fringilla. Maecenas lacinia lacus ut enim porttitor, sed fringilla eros mollis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec tempor orci vitae dui vestibulum luctus. Phasellus non libero accumsan, finibus metus quis, ultricies tortor. Sed id odio semper, laoreet mi nec, condimentum urna. Curabitur vel commodo felis, sed vulputate neque.',
     'Project safekeep' => 'Aliquam sed feugiat lacus, non aliquam neque. Phasellus sed feugiat purus. Pellentesque id molestie nibh, quis efficitur tortor. Morbi sed massa vel massa egestas rhoncus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras volutpat ipsum orci, vel vulputate risus rhoncus et. Phasellus tortor lorem, varius varius sapien et, vestibulum luctus sapien. Fusce suscipit purus tortor, vel elementum libero laoreet non. Praesent eget fringilla neque. Quisque feugiat ligula nec risus elementum, imperdiet luctus mauris facilisis. Morbi ac urna eget arcu ultrices egestas. Quisque dictum dapibus vestibulum.',
+    'Social collaboration portal' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
+    'Intranet project' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
   );
   foreach ($projects as $title => $body) {
     _open_hourglass_demo_contents_node($title, $body, 'project');
+  }
+
+  // Load a random project and promote it.
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project')
+    ->propertyCondition('status', NODE_PUBLISHED);
+
+  $result = $query->execute();
+  if (!empty($result)) {
+    $nid = array_rand($result['node']);
+    $node = node_load($nid);
+    $node->promote = 1;
+    node_save($node);
   }
 
   // Adding some random time entries.
@@ -419,7 +446,7 @@ function _open_hourglass_demo_contents_node($title, $body, $type) {
   $node->language = LANGUAGE_NONE; // Or e.g. 'en' if locale is enabled
   $node->uid = 1;
   $node->status = 1; //(1 or 0): published or not
-  $node->promote = rand(0, 1);
+  $node->promote = 0;
 
   switch($type) {
     case 'project':
@@ -584,4 +611,54 @@ function _open_hourglass_set_theme($target_theme) {
     $GLOBALS['conf']['maintenance_theme'] = $target_theme;
     _drupal_maintenance_theme();
   }
+}
+
+/**
+ * Updating Our.ly to Version 1.1
+ */
+function open_hourglass_update_7001() {
+
+  // Set maintenance theme.
+  theme_enable(array('ourly_install'));
+  variable_set('maintenance_theme', 'ourly_install');
+
+  $modules = array(
+    'rules',
+    'rules_admin',
+    'rules_scheduler'
+  );
+  module_enable($modules);
+
+  // Disable modules.
+  $_modules = array(
+    'diff',
+    'devel',
+    'comment',
+  );
+  module_disable($_modules);
+
+  $modules = array(
+    'ourly_notification',
+  );
+
+  module_enable($modules);
+
+  $modules_revert = array(
+    'open_hourglass_config',
+    'open_hourglass_permission',
+    'open_hourglass_displays',
+  );
+
+  foreach ($modules_revert as $module) {
+    features_revert_module($module);
+  }
+
+	// Setting last notification date.
+	variable_set('ourly_reminder_last_day', date('Y-m-d H:i:s', strtotime('-2 days')));
+
+  $context = array();
+  _open_hourglass_page_enable('node_edit', FALSE, null, $context);
+  _open_hourglass_page_enable('node_view', FALSE, null, $context);
+
+  cache_clear_all();
 }

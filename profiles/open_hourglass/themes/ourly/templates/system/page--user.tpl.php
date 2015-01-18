@@ -139,6 +139,9 @@ global $user;
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav navbar-right">
+          <?php if (!empty($settings_nav)): ?>
+            <?php print $settings_nav; ?>
+          <?php endif; ?>
           <?php if (!empty($secondary_nav)): ?>
             <?php print render($secondary_nav); ?>
           <?php endif; ?>
