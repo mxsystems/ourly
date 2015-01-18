@@ -45,4 +45,3 @@ features[views_view][] = time_entry_list
 features[views_view][] = user_time_entry_report
 features[views_view][] = user_time_entry_stats
 features[views_view][] = weekly_time_entry_overview
-mtime = 1421514014

@@ -1548,7 +1548,7 @@ function open_hourglass_displays_views_default_views() {
   $handler->display->display_options['fields']['field_time_entry_time_spent']['settings'] = array(
     'thousand_separator' => ',',
     'decimal_separator' => '.',
-    'scale' => '2',
+    'scale' => '0',
     'prefix_suffix' => 1,
   );
   /* Field: Global: Math expression */

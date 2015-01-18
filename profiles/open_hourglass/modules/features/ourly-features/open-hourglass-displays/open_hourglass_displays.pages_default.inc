@@ -1451,7 +1451,7 @@ function open_hourglass_displays_default_page_manager_pages() {
     $pane->panel = 'center';
     $pane->type = 'views_panes';
     $pane->subtype = 'front_dashboard-manage_dashboard_pane';
-    $pane->shown = TRUE;
+    $pane->shown = FALSE;
     $pane->access = array(
       'plugins' => array(
         0 => array(
@@ -1486,7 +1486,7 @@ function open_hourglass_displays_default_page_manager_pages() {
     $pane->panel = 'center';
     $pane->type = 'views_panes';
     $pane->subtype = 'front_dashboard-manage_pm_dashboard_pane';
-    $pane->shown = TRUE;
+    $pane->shown = FALSE;
     $pane->access = array(
       'plugins' => array(
         0 => array(
@@ -1521,7 +1521,7 @@ function open_hourglass_displays_default_page_manager_pages() {
     $pane->panel = 'center';
     $pane->type = 'block';
     $pane->subtype = 'menu-menu-manage';
-    $pane->shown = FALSE;
+    $pane->shown = TRUE;
     $pane->access = array();
     $pane->configuration = array(
       'override_title' => 0,
