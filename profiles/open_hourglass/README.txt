@@ -16,6 +16,12 @@ Notes:
 -----------------
 Changelog
 -----------------
+1.2
+#Bug: Back to top link smooth scroll
+#Refinement: Make project list alphabetical in new time entry page
+#Features: Time entry timer
+#Features: Time entry bulk time entry
+
 1.1
 #Bug: For non-admin users create new time should be in overlay.
 #Bug: On mobile unable to click on secondary menu item (weekly, monthly reports)
