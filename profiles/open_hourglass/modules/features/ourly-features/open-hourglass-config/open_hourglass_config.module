@@ -179,10 +179,12 @@ function open_hourglass_config_time_entry_validate($form, &$form_state) {
     form_set_error('field_time_entry_time_spent', t('You must enter something greater than 0'));
   }
   // make sure time entered are in the multiple of .25
-	$quotient = $time_spent / .25;
-	if (stristr($quotient, '.')) {
-		form_set_error('field_time_entry_time_spent', t('Time spent should be made in the increment of .25'));
-	}
+  if (variable_get('ourly_config_roundoff', 1)) {
+    $quotient = $time_spent / .25;
+    if (stristr($quotient, '.')) {
+      form_set_error('field_time_entry_time_spent', t('Time spent should be made in the increment of .25'));
+    }
+  }
 }
 
 /**

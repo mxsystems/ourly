@@ -3,7 +3,7 @@ api = 2
 core = 7.x
 
 ; Drupal core
-projects[drupal][version] = "7.34"
+projects[drupal][version] = "7.38"
 
 ; Installation profile
 projects[open_hourglass][type] = "profile"

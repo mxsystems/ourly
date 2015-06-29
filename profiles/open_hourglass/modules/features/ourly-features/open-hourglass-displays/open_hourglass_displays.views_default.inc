@@ -3223,7 +3223,13 @@ function open_hourglass_displays_views_default_views() {
   $handler->display->display_options['header']['area_text_custom']['table'] = 'views';
   $handler->display->display_options['header']['area_text_custom']['field'] = 'area_text_custom';
   $handler->display->display_options['header']['area_text_custom']['empty'] = TRUE;
-  $handler->display->display_options['header']['area_text_custom']['content'] = '<a href="/node/add/time-entry" class="btn btn-primary right">Add New Time Entry</a>';
+  $handler->display->display_options['header']['area_text_custom']['content'] = '<div class="btn-group right">
+	<a href="/node/add/time-entry" class="btn btn-primary">Add New Time Entry</a>
+	<a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+		<ul class="dropdown-menu" role="menu">
+			<li><a href="/bulk_time_entry">Add bulk entries</a></li>
+		</ul>
+</div>';
   $handler->display->display_options['defaults']['footer'] = FALSE;
   /* Footer: Global: View area */
   $handler->display->display_options['footer']['view']['id'] = 'view';
@@ -3760,7 +3766,13 @@ function open_hourglass_displays_views_default_views() {
   $handler->display->display_options['header']['area_text_custom']['id'] = 'area_text_custom';
   $handler->display->display_options['header']['area_text_custom']['table'] = 'views';
   $handler->display->display_options['header']['area_text_custom']['field'] = 'area_text_custom';
-  $handler->display->display_options['header']['area_text_custom']['content'] = '<a href="/node/add/time-entry" class="btn btn-primary right margin5">Create New Time Entry</a>';
+  $handler->display->display_options['header']['area_text_custom']['content'] = '<div class="btn-group right margin5">
+	<a href="/node/add/time-entry" class="btn btn-primary">Add New Time Entry</a>
+	<a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+		<ul class="dropdown-menu" role="menu">
+			<li><a href="/bulk_time_entry">Add bulk entries</a></li>
+		</ul>
+</div>';
   $handler->display->display_options['header']['area_text_custom']['tokenize'] = TRUE;
   /* No results behavior: Global: Unfiltered text */
   $handler->display->display_options['empty']['area_text_custom']['id'] = 'area_text_custom';

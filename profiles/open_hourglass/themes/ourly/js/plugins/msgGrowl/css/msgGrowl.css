@@ -1,4 +1,5 @@
 .msgGrowl-container {
+    z-index: 999;
 	width: 300px;
 	position: fixed;
 }

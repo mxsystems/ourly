@@ -28,7 +28,7 @@ projects[block_class][subdir] = "contrib"
 projects[block_class][version] = "2.1"
 
 projects[ctools][subdir] = "contrib"
-projects[ctools][version] = "1.5"
+projects[ctools][version] = "1.7"
 
 projects[panels][subdir] = "contrib"
 projects[panels][version] = "3.4"
@@ -37,13 +37,13 @@ projects[features][subdir] = "contrib"
 projects[features][version] = "2.3"
 
 projects[module_filter][subdir] = "contrib"
-projects[module_filter][version] = "1.8"
+projects[module_filter][version] = "2.0"
 
 projects[strongarm][subdir] = "contrib"
 projects[strongarm][version] = "2.0"
 
 projects[views][subdir] = "contrib"
-projects[views][version] = "3.8"
+projects[views][version] = "3.11"
 
 projects[link][subdir] = "contrib"
 projects[link][version] = "1.3"
@@ -58,7 +58,7 @@ projects[field_slideshow][subdir] = "contrib"
 projects[field_slideshow][version] = "1.82"
 
 projects[admin_views][subdir] = "contrib"
-projects[admin_views][version] = "1.3"
+projects[admin_views][version] = "1.4"
 
 projects[views_bulk_operations][subdir] = "contrib"
 projects[views_bulk_operations][version] = "3.2"
@@ -67,7 +67,7 @@ projects[views_data_export][subdir] = "contrib"
 projects[views_data_export][version] = "3.0-beta8"
 
 projects[entity][subdir] = "contrib"
-projects[entity][version] = "1.5"
+projects[entity][version] = "1.6"
 
 projects[libraries][subdir] = "contrib"
 projects[libraries][version] = "2.2"
@@ -109,7 +109,7 @@ projects[job_scheduler][subdir] = "contrib"
 projects[job_scheduler][version] = "2.0-alpha3"
 
 projects[feeds][subdir] = "contrib"
-projects[feeds][version] = "2.0-alpha8"
+projects[feeds][version] = "2.0-alpha9"
 
 projects[charts][subdir] = "contrib"
 projects[charts][version] = "2.0-rc1"

@@ -8,9 +8,9 @@ files[] = jquery_update.install
 configure = admin/config/development/jquery_update
 
 
-; Information added by drush on 2015-01-18
+; Information added by drush on 2015-06-29
 version = "7.x-3.0-rc4"
 core = "7.x"
 project = "jquery_update"
-datestamp = "1421550142"
+datestamp = "1435539499"
 

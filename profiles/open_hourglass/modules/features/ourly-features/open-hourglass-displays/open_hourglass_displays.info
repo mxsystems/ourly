@@ -7,6 +7,7 @@ project = open_hourglass_displays
 dependencies[] = boxes
 dependencies[] = charts
 dependencies[] = ctools
+dependencies[] = ourly_timer
 dependencies[] = page_manager
 dependencies[] = panels
 dependencies[] = views

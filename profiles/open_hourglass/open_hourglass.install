@@ -264,6 +264,7 @@ function open_hourglass_install_features() {
   $features = array(
     'Configuration' => 'open_hourglass_config',
     'Import' => 'open_hourglass_import',
+    'Timer' => 'ourly_timer',
     'Display' => 'open_hourglass_displays',
     'Help' => 'open_hourglass_help',
     'Menu' => 'open_hourglass_menu',
@@ -661,4 +662,19 @@ function open_hourglass_update_7001() {
   _open_hourglass_page_enable('node_view', FALSE, null, $context);
 
   cache_clear_all();
+}
+
+/**
+ * Updating Our.ly to Version 1.2
+ */
+function open_hourglass_update_7002() {
+  // Enable new modules.
+  module_enable(array('ourly_timer'));
+  $modules_revert = array(
+    'open_hourglass_config',
+    'open_hourglass_displays',
+  );
+  foreach ($modules_revert as $module) {
+    features_revert_module($module);
+  }
 }

@@ -1,0 +1,482 @@
+<?php
+/**
+ * @file
+ * Drupal needs this blank file.
+ */
+
+
+/**
+ * Implements hook_init
+ */
+function ourly_timer_init() {
+  // Clean up the temporary stroage for bulk time entry.
+  if (drupal_is_front_page()) {
+    $storage = variable_get('ourly_bulk_temp', array());
+    if (!empty($storage)) {
+      variable_del('ourly_bulk_temp');
+    }
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function ourly_timer_menu() {
+  $items = array();
+
+  $items['bulk_time_entry'] = array(
+    'title callback' => 'ourly_timer_menu_title',
+    'page callback' => 'ourly_timer_bulk_time_multiform',
+    'access callback' => TRUE,
+    'expanded' => TRUE,
+  );
+
+  return $items;
+}
+
+/**
+ * Title callback
+ * @return null|string
+ */
+function ourly_timer_menu_title() {
+  return t('Time Entry for Week of @start', array('@start' => date('m/d/Y', strtotime( "previous sunday" ))));
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function ourly_timer_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+}
+
+/**
+ * Time entry form builder.
+ */
+function _ourly_timer_entry_form() {
+  global $user;
+  $form['timer'] = array(
+    '#type' => 'markup',
+    '#prefix' => '<div id="quick_timer" class="badge">',
+    '#suffix' => '</div>',
+    '#markup' => '00:00:00',
+  );
+
+  // Hidden time recorder.
+  $form['field_time_entry_time_spent'] = array(
+    '#type' => 'textfield',
+    '#size' => 10,
+    '#attributes' => array(
+      'id' => 'timer_hidden',
+      'placeholder' => t('Time Spent'),
+    ),
+  );
+
+  // Load projects.
+  $project_nids = open_hourglass_permission_time_entry_project($user);
+  $query = db_select('node', 'n');
+  $query->condition('n.nid', $project_nids, 'IN');
+  $query->fields('n', array('nid', 'title'));
+  $results = $query->execute();
+  $options = array();
+
+  foreach ($results as $result) {
+    $options[$result->nid] = $result->title;
+  }
+
+  $form['field_time_entry_project'] = array(
+    '#type' => 'select',
+    '#options' => array('' => '--Project--') + $options,
+    '#attributes' => array(
+      'class' => array('form-control'),
+    ),
+  );
+
+  // Load categories.
+  $options = array();
+  $category = taxonomy_vocabulary_machine_name_load('category');
+  if (!empty($category)) {
+    $terms = taxonomy_get_tree($category->vid);
+    foreach ($terms as $term) {
+      $options[$term->tid] = $term->name;
+    }
+  }
+  $form['field_time_entry_category'] = array(
+    '#type' => 'select',
+    '#options' => array('' => '--Category--') + $options,
+    '#attributes' => array(
+      'class' => array('form-control'),
+      'id' => 'timer_category',
+    ),
+  );
+  $form['field_time_entry_note'] = array(
+    '#type' => 'textfield',
+    '#attributes' => array(
+      'class' => array('form-control'),
+      'placeholder' => t('Note'),
+      'size' => '45,'
+    ),
+  );
+  return $form;
+}
+
+
+/**
+ * Render a timer form
+ */
+function ourly_timer_pane_content($form, &$form_state) {
+  $form = _ourly_timer_entry_form();
+
+  $form['control'] = array(
+    '#attributes' => array(
+      'id' => 'timer_button',
+    ),
+    '#type' => 'button',
+    '#value' => t('Start'),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    '#attributes' => array(
+      'id' => 'timer_submit',
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Form validation callback.
+ * @param $form
+ * @param $form_state
+ */
+function ourly_timer_pane_content_validate($form, &$form_state) {
+  // Ideally, we would like user to not get to server side validation, it resets the timer.
+  $v = $form_state['values'];
+
+  // Timer is at 0.
+  if (empty($v['field_time_entry_time_spent']) || $v['field_time_entry_time_spent'] == 0) {
+    form_set_error('field_time_entry_time_spent', t('Timer is at 0, no time recorded'));
+  }
+  // Entering 24 hours at a time.
+  if ($v['field_time_entry_time_spent'] > 86400) {
+    form_set_error('field_time_entry_time_spent', t('You cannot enter more than 24 hours for one time entry'));
+  }
+  // Category is required, ideally user gets stopped by JS validation.
+  if (empty($v['field_time_entry_category'])) {
+    form_set_error('field_time_entry_category', t('Category is required'));
+  }
+  // We passed all validation checks, rounding up the time entry.
+  $round = ceil(($v['field_time_entry_time_spent'] / 3600) * 4) / 4;
+  $form_state['values']['field_time_entry_time_spent'] = $round;
+}
+
+/**
+ * Submission callback.
+ * @param $form
+ * @param $form_state
+ */
+function ourly_timer_pane_content_submit($form, &$form_state) {
+  _ourly_timer_entry_save($form_state['values']);
+  drupal_set_message(t("Your time entry has been recorded."), 'status');
+}
+
+/**
+ * Generate the multiform for the current week days.
+ * @return array
+ */
+function ourly_timer_bulk_time_multiform() {
+  // This will need to be passed in as a parameter.
+  // Let's use current week as the default for now.
+  $current_timestamp = REQUEST_TIME; // - 86400;
+  $day_of_the_week = date('N', $current_timestamp);
+
+  // Sunday is day 0
+  $day_of_the_week = ($day_of_the_week == 7) ? 0 : $day_of_the_week;
+
+  $week_days = array();
+  for ($i = 0; $i <= $day_of_the_week; $i++) {
+    $week_days[] = $current_timestamp - (($day_of_the_week - $i) * 86400);
+  }
+
+  foreach ($week_days as $week_day_time) {
+    $forms[] = drupal_get_form('ourly_time_bulk_time_form', $week_day_time);
+  }
+  $forms['#attached']['js'] = array(
+    drupal_get_path('theme', 'ourly') . '/js/plugins/validate/jquery.validate.js',
+    drupal_get_path('module', 'ourly_timer') . '/js/ourly_bulk.js',
+  );
+
+  return $forms;
+}
+
+/**
+ * Multiple time entry form.
+ */
+function ourly_time_bulk_time_form($form, &$form_state, $timestamp) {
+
+  $date = date('l, Y-m-d', $timestamp);
+  $datestamp = date('Y-m-d', $timestamp);
+  $form_state['datestamp'] = $datestamp;
+
+  $form['#tree'] = TRUE;
+  $form['time_entry' . $datestamp] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'class' => array(
+        'widget',
+        'stacked',
+      ),
+    ),
+    '#prefix' => '<div id="time-entry-wrapper'. $datestamp . '" class="col-md-12 bulk_time">',
+    '#suffix' => '</div>',
+  );
+
+  $form['time_entry' . $datestamp]['title'] = array(
+    '#markup' => t('@date', array('@date' => $date)),
+    '#prefix' => '<div class="widget-header"><h3>',
+    '#suffix' => '</h3></div>',
+  );
+
+  // Build the fieldset with the proper number of names. We'll use
+  $form['time_entry' . $datestamp]['body'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'class' => array(
+        'widget-content',
+      ),
+    ),
+  );
+
+  if (empty($form_state['entries' . $datestamp])) {
+    $form_state['entries' . $datestamp] = 1;
+  }
+  for ($i = 0; $i < $form_state['entries' . $datestamp]; $i++) {
+    // Time entry form.
+    $form['time_entry' . $datestamp]['body'][$i] = array(
+      '#type' => 'container',
+      '#attributes' => array(
+        'class' => array(
+          'clear',
+          'overflow-hidden',
+        ),
+      ),
+    );
+
+    $_form = _ourly_timer_entry_form();
+
+    // Adding ajax callback to 2 fields.
+    $_form['field_time_entry_time_spent']['#ajax'] = array(
+      'callback' => 'ourly_time_bulk_time_ajax_callback',
+      'wrapper' => 'time-entry-wrapper' . $datestamp,
+    );
+
+    $_form['field_time_entry_time_spent']['#attributes']['class'][] = 'bulk_entry_time_spent';
+    $_form['field_time_entry_category']['#attributes']['class'][] = 'bulk_entry_category';
+
+    // @todo: not triggering?
+    $_form['field_time_entry_category']['#ajax'] = array(
+      'callback' => 'ourly_time_bulk_time_ajax_callback',
+      'wrapper' => 'time-entry-wrapper' . $datestamp,
+    );
+    $_form['field_time_entry_note']['#ajax'] = array(
+      'callback' => 'ourly_time_bulk_time_ajax_callback',
+      'wrapper' => 'time-entry-wrapper' . $datestamp,
+    );
+
+    // Adding some required class.
+    $_form['field_time_entry_time_spent']['#required'] = TRUE;
+    $_form['field_time_entry_category']['#required'] = TRUE;
+    $_form['field_time_entry_note']['#required'] = TRUE;
+
+    unset($_form['timer']);
+    unset($_form['field_time_entry_time_spent']['#attributes']['id']);
+
+    $form['time_entry' . $datestamp]['body'][$i][] = $_form;
+  }
+
+  $form['time_entry' . $datestamp]['body']['add_name'] = array(
+    '#type' => 'submit',
+    '#value' => t('Add one more'),
+    '#submit' => array('ourly_time_bulk_time_add_one'),
+    '#ajax' => array(
+      'callback' => 'ourly_time_bulk_time_ajax_callback',
+      'wrapper' => 'time-entry-wrapper' . $datestamp,
+    ),
+  );
+  if ($form_state['entries' . $datestamp] > 1) {
+    $form['time_entry' . $datestamp]['body']['remove_name'] = array(
+      '#type' => 'submit',
+      '#value' => t('Remove one'),
+      '#submit' => array('ourly_time_bulk_time_remove_one'),
+      '#ajax' => array(
+        'callback' => 'ourly_time_bulk_time_ajax_callback',
+        'wrapper' => 'time-entry-wrapper' . $datestamp,
+      ),
+    );
+  }
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+/**
+ * Callback for both ajax-enabled buttons.
+ *
+ * Selects and returns the fieldset with the names in it.
+ */
+function ourly_time_bulk_time_ajax_callback($form, $form_state) {
+  $datestamp = date('Ymd', $form_state['datestamp']);
+  // Save data entered into our temporary variable.
+  _ourly_time_bulk_time_temp_storage($form_state['values']);
+  return $form['time_entry' . $form_state['datestamp']];
+}
+
+/**
+ * Temporarily saves all form state value
+ * @param $form_state_values
+ */
+function _ourly_time_bulk_time_temp_storage($form_state_values) {
+  $v = $form_state_values;
+  $storage = variable_get('ourly_bulk_temp', array());
+
+  // Remove unnecessary sets.
+  unset($v['submit'], $v['form_build_id'], $v['form_token'], $v['form_id'], $v['op']);
+
+  // Locate the key for the time entry for that day. (i.e. time_entry20150101)
+  $keys = array_keys($v);
+  $time_entry_date = $keys[0];
+  unset($v[$time_entry_date]['body']['add_name'], $v[$time_entry_date]['body']['remove_name']);
+
+  $day_entries = array();
+  foreach ($v[$time_entry_date]['body'] as $key => $entry) {
+    $day_entries[] = $entry[0];
+  }
+  $storage[$time_entry_date] = $day_entries;
+  variable_set('ourly_bulk_temp', $storage);
+}
+
+/**
+ * Submit handler for the "add-one-more" button.
+ */
+function ourly_time_bulk_time_add_one($form, &$form_state) {
+  $form_state['entries'. $form_state['datestamp']]++;
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Submit handler for the "remove one" button.
+ */
+function ourly_time_bulk_time_remove_one($form, &$form_state) {
+  if ($form_state['entries' . $form_state['datestamp']] > 1) {
+    $form_state['entries' . $form_state['datestamp']]--;
+  }
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Validation handler.
+ */
+function ourly_time_bulk_time_form_validate($form, &$form_state) {
+  $storage = _ourly_time_bulk_time_load_temp();
+  foreach ($storage as $date => $entries) {
+    foreach ($entries as $key => $entry) {
+      if (empty($entry['field_time_entry_time_spent']) || empty($entry['field_time_entry_category'])) {
+        unset($storage[$date][$key]);
+      }
+    }
+  }
+  if (!empty($storage)) {
+    variable_set('ourly_bulk_temp', $storage);
+  }
+}
+
+/**
+ * Submit handler for the form.
+ */
+function ourly_time_bulk_time_form_submit($form, &$form_state) {
+  $storage = _ourly_time_bulk_time_load_temp();
+  if (empty($storage)) {
+    return;
+  }
+  foreach ($storage as $date => $entries) {
+    $entry_date = substr($date, 10);
+    foreach ($entries as $entry) {
+      _ourly_timer_entry_save($entry, $entry_date);
+    }
+  }
+  variable_del('ourly_bulk_temp');
+  $form_state['redirect'] = 'time';
+  drupal_set_message(t('Your time entries have been saved.'));
+}
+
+/**
+ * Saving an individual time entry.
+ * @param $values
+ * @param bool $entry_date
+ */
+function _ourly_timer_entry_save($values, $entry_date = FALSE) {
+  global $user;
+  $node = new stdClass();
+  // This is really overwritten by node_autotitle module.
+  $node->title = "Timer entry " . date('Y-m-d H:i:s', REQUEST_TIME);
+  $node->type = "time_entry";
+  node_object_prepare($node);
+
+  // @todo: Add language support in the future.
+  $node->language = LANGUAGE_NONE;
+  $node->uid = $user->uid;
+  $node->status = 1;
+  $node->promote = 0;
+
+  $field_values = array();
+  foreach ($values as $form_element => $value) {
+    if (substr($form_element, 0, 5) == 'field') {
+      $field_values[$form_element] = $value;
+    }
+  }
+  foreach ($field_values as $field_name => $value) {
+    // We assume note and project are optional fields.
+    if (!empty($value)) {
+      $field = field_info_field($field_name);
+      // Should be ok here but not a good practice.
+      $column = array_keys($field['columns']);
+      $column = $column[0];
+      $node->{$field_name}[LANGUAGE_NONE][0][$column] = $value;
+    }
+  }
+
+  // Adding time entry date.
+  if (!$entry_date) {
+    $date_time = date('Y-m-d', REQUEST_TIME) . ' 00:00:00';
+  } else {
+    $date_time = $entry_date . ' 00:00:00';
+  }
+
+  // Lastly, setting the default day to the current time.
+  $node->field_time_entry_date[LANGUAGE_NONE][0] = array(
+    'value' => $date_time,
+    'timezone' => 'UTC',
+    'timezone_db' => 'UTC',
+    'date_type' => 'datetime',
+  );
+  $node = node_submit($node);
+  node_save($node);
+}
+
+/**
+ * Getting around variable_get caching.
+ * @return mixed
+ */
+function _ourly_time_bulk_time_load_temp() {
+  $storage = db_query('SELECT value FROM {variable} WHERE name = :name', array(':name' => 'ourly_bulk_temp'))->fetchField();
+  if (empty($storage)) {
+    return;
+  }
+  return unserialize($storage);
+}

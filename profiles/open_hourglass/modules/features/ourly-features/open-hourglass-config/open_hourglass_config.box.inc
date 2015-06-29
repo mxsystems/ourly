@@ -19,9 +19,7 @@ function open_hourglass_config_default_box() {
   $box->description = 'Copyright';
   $box->options = array(
     'body' => array(
-      'value' => '&copy; 2013 - 2015 Our.ly, brought to you by MX Systems LLC
-
-<a id="back-to-top" href="#top" style="display: block;"><i class="icon-chevron-up"></i></a>',
+      'value' => '&copy; 2013 - 2015 Our.ly, brought to you by MX Systems LLC',
       'format' => 'full_html',
     ),
     'additional_classes' => 'col-md-6',

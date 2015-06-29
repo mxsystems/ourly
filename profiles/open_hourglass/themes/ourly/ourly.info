@@ -26,7 +26,7 @@ regions[page_bottom]    = 'Page bottom'
 ;;;;;;;;;;;;;;;;;;;;;
 
 stylesheets[all][] = css/style.css
-
+stylesheets[all][] = js/plugins/msgGrowl/css/msgGrowl.css
 
 ; For information on choosing the desired method, please read the Drupal
 ; Bootstrap sub-theme "how-to" documentation:
@@ -53,8 +53,9 @@ stylesheets[all][] = css/style.css
 ; scripts[] = 'bootstrap/js/tab.js'
 ; scripts[] = 'bootstrap/js/transition.js'
 ;
-; scripts[] = 'js/Application.js'
+scripts[] = 'js/Application.js'
 scripts[] = 'js/libs/jquery-ui-1.10.0.custom.min.js'
+scripts[] = 'js/plugins/msgGrowl/js/msgGrowl.min.js'
 
 ; ; Disable BootstrapCDN if using Bootstrap source files in your sub-theme.
 ; settings[bootstrap_cdn] = ''

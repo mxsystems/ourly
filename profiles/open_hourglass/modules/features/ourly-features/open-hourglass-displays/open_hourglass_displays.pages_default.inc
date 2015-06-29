@@ -1133,6 +1133,28 @@ function open_hourglass_displays_default_page_manager_pages() {
   $display->content = array();
   $display->panels = array();
     $pane = new stdClass();
+    $pane->pid = 'new-b9d5f79f-5cb1-463f-bd94-06c35251b95c';
+    $pane->panel = 'center';
+    $pane->type = 'ourly_timer';
+    $pane->subtype = 'ourly_timer';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array();
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array(
+      'css_id' => '',
+      'css_class' => 'col-md-12',
+    );
+    $pane->extras = array();
+    $pane->position = 0;
+    $pane->locks = array();
+    $pane->uuid = 'b9d5f79f-5cb1-463f-bd94-06c35251b95c';
+    $display->content['new-b9d5f79f-5cb1-463f-bd94-06c35251b95c'] = $pane;
+    $display->panels['center'][0] = 'new-b9d5f79f-5cb1-463f-bd94-06c35251b95c';
+    $pane = new stdClass();
     $pane->pid = 'new-b9d0bb57-eed2-4a29-b7d5-141d3ed63d81';
     $pane->panel = 'center';
     $pane->type = 'views_panes';
@@ -1152,11 +1174,11 @@ function open_hourglass_displays_default_page_manager_pages() {
       'css_class' => 'col-md-12',
     );
     $pane->extras = array();
-    $pane->position = 0;
+    $pane->position = 1;
     $pane->locks = array();
     $pane->uuid = 'b9d0bb57-eed2-4a29-b7d5-141d3ed63d81';
     $display->content['new-b9d0bb57-eed2-4a29-b7d5-141d3ed63d81'] = $pane;
-    $display->panels['center'][0] = 'new-b9d0bb57-eed2-4a29-b7d5-141d3ed63d81';
+    $display->panels['center'][1] = 'new-b9d0bb57-eed2-4a29-b7d5-141d3ed63d81';
   $display->hide_title = PANELS_TITLE_FIXED;
   $display->title_pane = '0';
   $handler->conf['display'] = $display;
@@ -1243,6 +1265,28 @@ function open_hourglass_displays_default_page_manager_pages() {
   $display->content = array();
   $display->panels = array();
     $pane = new stdClass();
+    $pane->pid = 'new-2e5a3b05-591e-4214-bc39-80603c48665e';
+    $pane->panel = 'center';
+    $pane->type = 'ourly_timer';
+    $pane->subtype = 'ourly_timer';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array();
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array(
+      'css_id' => 'quick_timer',
+      'css_class' => 'col-md-12',
+    );
+    $pane->extras = array();
+    $pane->position = 0;
+    $pane->locks = array();
+    $pane->uuid = '2e5a3b05-591e-4214-bc39-80603c48665e';
+    $display->content['new-2e5a3b05-591e-4214-bc39-80603c48665e'] = $pane;
+    $display->panels['center'][0] = 'new-2e5a3b05-591e-4214-bc39-80603c48665e';
+    $pane = new stdClass();
     $pane->pid = 'new-61fff80f-24cb-4ba3-9931-fad9abc92873';
     $pane->panel = 'center';
     $pane->type = 'views';
@@ -1288,11 +1332,11 @@ function open_hourglass_displays_default_page_manager_pages() {
       'css_class' => 'col-md-4',
     );
     $pane->extras = array();
-    $pane->position = 0;
+    $pane->position = 1;
     $pane->locks = array();
     $pane->uuid = '61fff80f-24cb-4ba3-9931-fad9abc92873';
     $display->content['new-61fff80f-24cb-4ba3-9931-fad9abc92873'] = $pane;
-    $display->panels['center'][0] = 'new-61fff80f-24cb-4ba3-9931-fad9abc92873';
+    $display->panels['center'][1] = 'new-61fff80f-24cb-4ba3-9931-fad9abc92873';
     $pane = new stdClass();
     $pane->pid = 'new-ec4d77f0-1baf-4d58-97bf-981c7b9bf66f';
     $pane->panel = 'center';
@@ -1339,11 +1383,11 @@ function open_hourglass_displays_default_page_manager_pages() {
       'css_class' => 'col-md-6',
     );
     $pane->extras = array();
-    $pane->position = 1;
+    $pane->position = 2;
     $pane->locks = array();
     $pane->uuid = 'ec4d77f0-1baf-4d58-97bf-981c7b9bf66f';
     $display->content['new-ec4d77f0-1baf-4d58-97bf-981c7b9bf66f'] = $pane;
-    $display->panels['center'][1] = 'new-ec4d77f0-1baf-4d58-97bf-981c7b9bf66f';
+    $display->panels['center'][2] = 'new-ec4d77f0-1baf-4d58-97bf-981c7b9bf66f';
     $pane = new stdClass();
     $pane->pid = 'new-3d205ff5-8aa9-46d9-be0f-a62ab6bc5af7';
     $pane->panel = 'center';
@@ -1390,11 +1434,11 @@ function open_hourglass_displays_default_page_manager_pages() {
       'css_class' => 'col-md-4',
     );
     $pane->extras = array();
-    $pane->position = 2;
+    $pane->position = 3;
     $pane->locks = array();
     $pane->uuid = '3d205ff5-8aa9-46d9-be0f-a62ab6bc5af7';
     $display->content['new-3d205ff5-8aa9-46d9-be0f-a62ab6bc5af7'] = $pane;
-    $display->panels['center'][2] = 'new-3d205ff5-8aa9-46d9-be0f-a62ab6bc5af7';
+    $display->panels['center'][3] = 'new-3d205ff5-8aa9-46d9-be0f-a62ab6bc5af7';
     $pane = new stdClass();
     $pane->pid = 'new-aaf340fe-0929-4f09-89b7-6068604108c0';
     $pane->panel = 'center';
@@ -1441,11 +1485,11 @@ function open_hourglass_displays_default_page_manager_pages() {
       'css_class' => 'col-md-6',
     );
     $pane->extras = array();
-    $pane->position = 3;
+    $pane->position = 4;
     $pane->locks = array();
     $pane->uuid = 'aaf340fe-0929-4f09-89b7-6068604108c0';
     $display->content['new-aaf340fe-0929-4f09-89b7-6068604108c0'] = $pane;
-    $display->panels['center'][3] = 'new-aaf340fe-0929-4f09-89b7-6068604108c0';
+    $display->panels['center'][4] = 'new-aaf340fe-0929-4f09-89b7-6068604108c0';
     $pane = new stdClass();
     $pane->pid = 'new-579acd5f-18fc-4c07-ac53-9879a38b429c';
     $pane->panel = 'center';
@@ -1476,11 +1520,11 @@ function open_hourglass_displays_default_page_manager_pages() {
       'css_class' => 'col-md-4',
     );
     $pane->extras = array();
-    $pane->position = 4;
+    $pane->position = 5;
     $pane->locks = array();
     $pane->uuid = '579acd5f-18fc-4c07-ac53-9879a38b429c';
     $display->content['new-579acd5f-18fc-4c07-ac53-9879a38b429c'] = $pane;
-    $display->panels['center'][4] = 'new-579acd5f-18fc-4c07-ac53-9879a38b429c';
+    $display->panels['center'][5] = 'new-579acd5f-18fc-4c07-ac53-9879a38b429c';
     $pane = new stdClass();
     $pane->pid = 'new-b7d2576b-b0fd-4700-aa11-60b09ad63cb6';
     $pane->panel = 'center';
@@ -1511,11 +1555,11 @@ function open_hourglass_displays_default_page_manager_pages() {
       'css_class' => 'col-md-4',
     );
     $pane->extras = array();
-    $pane->position = 5;
+    $pane->position = 6;
     $pane->locks = array();
     $pane->uuid = 'b7d2576b-b0fd-4700-aa11-60b09ad63cb6';
     $display->content['new-b7d2576b-b0fd-4700-aa11-60b09ad63cb6'] = $pane;
-    $display->panels['center'][5] = 'new-b7d2576b-b0fd-4700-aa11-60b09ad63cb6';
+    $display->panels['center'][6] = 'new-b7d2576b-b0fd-4700-aa11-60b09ad63cb6';
     $pane = new stdClass();
     $pane->pid = 'new-88ed9002-82f3-4ebb-8213-1e409a3d9e35';
     $pane->panel = 'center';
@@ -1536,11 +1580,11 @@ function open_hourglass_displays_default_page_manager_pages() {
       'css_class' => 'col-md-4',
     );
     $pane->extras = array();
-    $pane->position = 6;
+    $pane->position = 7;
     $pane->locks = array();
     $pane->uuid = '88ed9002-82f3-4ebb-8213-1e409a3d9e35';
     $display->content['new-88ed9002-82f3-4ebb-8213-1e409a3d9e35'] = $pane;
-    $display->panels['center'][6] = 'new-88ed9002-82f3-4ebb-8213-1e409a3d9e35';
+    $display->panels['center'][7] = 'new-88ed9002-82f3-4ebb-8213-1e409a3d9e35';
     $pane = new stdClass();
     $pane->pid = 'new-c2b90c65-32ec-454c-a456-732d64cef252';
     $pane->panel = 'center';
@@ -1573,11 +1617,11 @@ function open_hourglass_displays_default_page_manager_pages() {
       'css_class' => 'col-md-12',
     );
     $pane->extras = array();
-    $pane->position = 7;
+    $pane->position = 8;
     $pane->locks = array();
     $pane->uuid = 'c2b90c65-32ec-454c-a456-732d64cef252';
     $display->content['new-c2b90c65-32ec-454c-a456-732d64cef252'] = $pane;
-    $display->panels['center'][7] = 'new-c2b90c65-32ec-454c-a456-732d64cef252';
+    $display->panels['center'][8] = 'new-c2b90c65-32ec-454c-a456-732d64cef252';
   $display->hide_title = PANELS_TITLE_FIXED;
   $display->title_pane = '0';
   $handler->conf['display'] = $display;

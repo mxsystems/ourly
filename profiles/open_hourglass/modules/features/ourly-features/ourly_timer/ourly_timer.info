@@ -1,0 +1,6 @@
+name = Ourly Timer
+description = Provide custom timer UI for the Our.ly platform
+core = 7.x
+package = Open Hourglass
+version = 7.x-1.0
+project = ourly_timer
